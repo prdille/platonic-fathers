@@ -81,20 +81,33 @@
   .p-text{font-size:14px;line-height:1.6;color:var(--ink-dim);margin:0} .p-text.strong{color:var(--ink)}
   .p-body::-webkit-scrollbar{width:8px} .p-body::-webkit-scrollbar-thumb{background:#2f2742;border-radius:4px}
 
-  /* timeline */
-  #timelineWrap{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;z-index:2}
-  #timelineWrap::-webkit-scrollbar{width:10px} #timelineWrap::-webkit-scrollbar-thumb{background:#2f2742;border-radius:5px}
+  /* timeline (the River) — time runs left to right */
+  #timelineWrap{position:fixed;top:108px;left:0;right:0;bottom:0;overflow:auto;z-index:2;
+    cursor:grab;overscroll-behavior:contain}
+  /* in river mode the left gutter holds the stream names, so the legend steps aside */
+  body.river .legend{left:auto;right:24px}
+  #timelineWrap.dragging{cursor:grabbing}
+  #timelineWrap::-webkit-scrollbar{width:10px;height:10px}
+  #timelineWrap::-webkit-scrollbar-thumb{background:#2f2742;border-radius:5px}
+  #timelineWrap::-webkit-scrollbar-corner{background:transparent}
+  /* the global svg rule stretches every svg to the viewport; the river carries its own box */
+  #timelineSvg{position:static;inset:auto;width:auto;height:auto;display:block;touch-action:none}
   .tl-node{cursor:pointer}
   .tl-node circle{stroke:#0c0912;stroke-width:1.3;transition:filter .2s}
   .tl-node:hover circle{filter:drop-shadow(0 0 9px currentColor)}
-  .tl-node text{fill:var(--ink);font-size:12px;font-variant:small-caps;letter-spacing:.02em;paint-order:stroke;stroke:#0c0912;stroke-width:3px;pointer-events:none}
+  .tl-node text{fill:var(--ink);font-size:12.5px;font-variant:small-caps;letter-spacing:.02em;
+    paint-order:stroke;stroke:#0c0912;stroke-width:3.5px;pointer-events:none;dominant-baseline:middle}
   .tl-node:hover text{fill:var(--gold-soft)}
-  .tl-band{opacity:.05}
+  .tl-band{opacity:.06}
   .tl-grid{stroke:#2a2440;stroke-width:1}
-  .tl-gridlabel{fill:var(--ink-dim);font-family:system-ui,sans-serif;font-size:11px;opacity:.6}
-  .tl-seam{stroke:var(--gold);stroke-width:1;stroke-dasharray:2 6;opacity:.5}
+  .tl-grid.major{stroke:#3b3355}
+  .tl-gridlabel{fill:var(--ink-dim);font-family:system-ui,sans-serif;font-size:11px;opacity:.55;text-anchor:middle}
+  .tl-gridlabel.major{opacity:.95;font-weight:600;fill:var(--ink)}
+  .tl-seam{stroke:var(--gold);stroke-width:1;stroke-dasharray:2 6;opacity:.45}
   .tl-seamlabel{fill:var(--gold-soft);font-family:system-ui,sans-serif;font-size:11px;font-style:italic;opacity:.85}
-  .tl-lanelabel{fill:var(--ink-dim);font-family:system-ui,sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.55;text-anchor:middle}
+  .tl-lanelabel{font-family:system-ui,sans-serif;font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;opacity:.85;text-anchor:start;dominant-baseline:middle}
+  .tl-gutterbg{fill:url(#tlGutterFade)} .tl-axisbg{fill:url(#tlAxisFade)}
   .tl-res{fill:none;stroke:var(--gold);stroke-width:1;stroke-dasharray:1.5 6;stroke-linecap:round;opacity:.4}
 
   #intro{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
@@ -397,60 +410,127 @@ function drawPath(){const pts=PATH.map(id=>byId[id]);let d="M"+pts[0].x.toFixed(
 
 document.getElementById("resetBtn").onclick=()=>{
   if(mode==="rhizome"){vb={x:0,y:0,w:W,h:H};applyVB();alpha=0.6;if(pathActive)pathBtn.onclick();}
-  else{document.getElementById("timelineWrap").scrollTo({top:0,behavior:"smooth"});}
+  else{tlWrap.scrollTo({left:0,top:0,behavior:"smooth"});}
   plateauFilter=null;[...sw.children].forEach(c=>c.classList.remove("off"));panel.classList.remove("open");lockHi=false;clearHi();applyFilter();
 };
 
-/* ================= TIMELINE (the River) ================= */
+/* ================= TIMELINE (the River) — time flows left → right ================= */
 const tlSvg=document.getElementById("timelineSvg");
-const TL={top:70,h:6000,y0:-620,y1:1990,padL:70,padR:30};
-let tlBuilt=false;
-function yToPix(year){return TL.top+(year-TL.y0)/(TL.y1-TL.y0)*TL.h;}
+const tlWrap=document.getElementById("timelineWrap");
+/* padR leaves the legend a clear corner once the river is scrolled to its end */
+const TL={y0:-620,y1:1990,ppy:2.7,padL:206,padR:360,axisH:84,rowH:29,bandPad:11,laneGap:14};
+let tlGutter=null,tlAxis=null,tlMoved=false;
+function xToPix(year){return TL.padL+(year-TL.y0)*TL.ppy;}
+function mk(tag,attrs,cls){const e=document.createElementNS(SVGNS,tag);
+  if(cls)e.setAttribute("class",cls);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+function yearLabel(yr){return yr<0?Math.abs(yr)+" BC":(yr===0?"AD 1":"AD "+yr);}
+
 function buildTimeline(){
-  const wrap=document.getElementById("timelineWrap");
-  const width=Math.max(wrap.clientWidth,900);
-  const laneW=(width-TL.padL-TL.padR)/LANE_ORDER.length;
-  const laneX=p=>TL.padL+ (LANE_ORDER.indexOf(p)+0.5)*laneW;
-  const totalH=TL.top+TL.h+120;
-  tlSvg.setAttribute("width",width);tlSvg.setAttribute("height",totalH);
-  tlSvg.setAttribute("viewBox",`0 0 ${width} ${totalH}`);
   tlSvg.innerHTML="";
-  // stream bands
-  LANE_ORDER.forEach(p=>{const b=document.createElementNS(SVGNS,"rect");b.setAttribute("class","tl-band");
-    b.setAttribute("x",laneX(p)-laneW*0.42);b.setAttribute("y",TL.top-30);b.setAttribute("width",laneW*0.84);b.setAttribute("height",TL.h+60);
-    b.setAttribute("rx",laneW*0.4);b.setAttribute("fill",PLATEAUS[p].color);tlSvg.appendChild(b);
-    const ll=document.createElementNS(SVGNS,"text");ll.setAttribute("class","tl-lanelabel");ll.setAttribute("x",laneX(p));ll.setAttribute("y",TL.top-40);ll.textContent=PLATEAUS[p].label;tlSvg.appendChild(ll);});
-  // century gridlines
-  for(let yr=-500;yr<=1900;yr+=250){const y=yToPix(yr);
-    const g=document.createElementNS(SVGNS,"line");g.setAttribute("class","tl-grid");g.setAttribute("x1",TL.padL-40);g.setAttribute("x2",width);g.setAttribute("y1",y);g.setAttribute("y2",y);tlSvg.appendChild(g);
-    const gl=document.createElementNS(SVGNS,"text");gl.setAttribute("class","tl-gridlabel");gl.setAttribute("x",6);gl.setAttribute("y",y-3);gl.textContent=(yr<0?Math.abs(yr)+" BC":"AD "+yr);tlSvg.appendChild(gl);}
-  // seam markers
-  const seams=[[30,"The Incarnation — the descent"],[325,"Nicaea"],[553,"Origen condemned"],[1439,"Council of Florence — the Greek reception"],[1600,"Böhme — the ascent tips inward"]];
-  seams.forEach(([yr,lbl])=>{const y=yToPix(yr);
-    const s=document.createElementNS(SVGNS,"line");s.setAttribute("class","tl-seam");s.setAttribute("x1",TL.padL-40);s.setAttribute("x2",width);s.setAttribute("y1",y);s.setAttribute("y2",y);tlSvg.appendChild(s);
-    const sl=document.createElementNS(SVGNS,"text");sl.setAttribute("class","tl-seamlabel");sl.setAttribute("x",TL.padL-34);sl.setAttribute("y",y-4);sl.textContent=lbl;tlSvg.appendChild(sl);});
-  // resonance threads (gold, across lanes)
+  const totalW=Math.round(Math.max(tlWrap.clientWidth,xToPix(TL.y1)+TL.padR));
+
+  /* pack each stream into sub-rows so no two names collide */
+  const lanes={};LANE_ORDER.forEach(p=>lanes[p]={items:[],ends:[]});
+  [...NODES].sort((a,b)=>a.year-b.year).forEach(n=>{const L=lanes[n.p];if(!L)return;
+    const x=xToPix(n.year),rad=4+n.w*1.9,w=rad+16+n.name.length*7.1;
+    let r=L.ends.findIndex(end=>end<=x-8);
+    if(r<0){r=L.ends.length;L.ends.push(0);}
+    L.ends[r]=x+w;L.items.push({n,x,rad,row:r});});
+
+  /* stack the streams, each only as tall as it needs to be */
+  let cur=TL.axisH;const laneTop={},laneH={};
+  LANE_ORDER.forEach(p=>{const rows=Math.max(1,lanes[p].ends.length);
+    laneTop[p]=cur;laneH[p]=rows*TL.rowH+TL.bandPad*2;cur+=laneH[p]+TL.laneGap;});
+  const totalH=cur+44;
+
+  tlSvg.setAttribute("width",totalW);tlSvg.setAttribute("height",totalH);
+  tlSvg.setAttribute("viewBox","0 0 "+totalW+" "+totalH);
+  tlSvg.setAttribute("preserveAspectRatio","xMinYMin meet");
+
+  const defs=mk("defs",{});
+  const fade=(id,x2,y2)=>{const lg=mk("linearGradient",{id:id,x1:0,y1:0,x2:x2,y2:y2});
+    [[0,1],[.78,1],[1,0]].forEach(([o,a])=>lg.appendChild(mk("stop",
+      {offset:o,"stop-color":"#0b0812","stop-opacity":a})));return lg;};
+  defs.appendChild(fade("tlGutterFade",1,0));defs.appendChild(fade("tlAxisFade",0,1));
+  tlSvg.appendChild(defs);
+
+  /* stream bands */
+  LANE_ORDER.forEach(p=>tlSvg.appendChild(mk("rect",
+    {x:0,y:laneTop[p],width:totalW,height:laneH[p],rx:10,fill:PLATEAUS[p].color},"tl-band")));
+
+  /* century gridlines — every 100 years, emphasised every 500 */
+  for(let yr=-600;yr<=1900;yr+=100){const x=xToPix(yr),major=(yr%500===0);
+    tlSvg.appendChild(mk("line",{x1:x,x2:x,y1:TL.axisH-12,y2:totalH-26},"tl-grid"+(major?" major":"")));}
+
+  /* seams — the turns in the river */
+  const seams=[[30,"The Incarnation — the descent"],[325,"Nicaea"],[553,"Origen condemned"],
+               [1439,"Council of Florence — the Greek reception"],[1600,"Böhme — the ascent tips inward"]];
+  seams.forEach(([yr])=>{const x=xToPix(yr);
+    tlSvg.appendChild(mk("line",{x1:x,x2:x,y1:TL.axisH-30,y2:totalH-26},"tl-seam"));});
+
+  /* resonance threads — gold, leaping between streams */
   LINKS.filter(l=>l[2]===R).forEach(([a,b])=>{const na=byId[a],nb=byId[b];if(!na||!nb)return;
-    const x1=laneX(na.p),y1=yToPix(na.year),x2=laneX(nb.p),y2=yToPix(nb.year);const mx=(x1+x2)/2;
-    const path=document.createElementNS(SVGNS,"path");path.setAttribute("class","tl-res");
-    path.setAttribute("d",`M${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);tlSvg.appendChild(path);});
-  // nodes (stagger within lane to reduce overlap)
-  const laneCount={};LANE_ORDER.forEach(p=>laneCount[p]=0);
-  const sorted=[...NODES].sort((a,b)=>a.year-b.year);
-  const lastY={};
-  sorted.forEach(n=>{
-    let x=laneX(n.p),y=yToPix(n.year);
-    if(lastY[n.p]!==undefined && y-lastY[n.p]<20){x+= (laneCount[n.p]%2===0? laneW*0.22 : -laneW*0.22);}
-    lastY[n.p]=y;laneCount[n.p]++;
-    const g=document.createElementNS(SVGNS,"g");g.setAttribute("class","tl-node");g.dataset.id=n.id;g.setAttribute("transform",`translate(${x} ${y})`);
-    const col=PLATEAUS[n.p].color,rad=4+n.w*1.9;
-    const c=document.createElementNS(SVGNS,"circle");c.setAttribute("r",rad);c.setAttribute("fill",col);c.style.color=col;
-    const t=document.createElementNS(SVGNS,"text");t.setAttribute("x",rad+6);t.setAttribute("y",4);t.textContent=n.name;
+    const ia=lanes[na.p]&&lanes[na.p].items.find(i=>i.n===na),ib=lanes[nb.p]&&lanes[nb.p].items.find(i=>i.n===nb);
+    if(!ia||!ib)return;
+    const x1=ia.x,y1=laneTop[na.p]+TL.bandPad+ia.row*TL.rowH+TL.rowH/2;
+    const x2=ib.x,y2=laneTop[nb.p]+TL.bandPad+ib.row*TL.rowH+TL.rowH/2;const my=(y1+y2)/2;
+    tlSvg.appendChild(mk("path",{d:"M"+x1+" "+y1+" C "+x1+" "+my+", "+x2+" "+my+", "+x2+" "+y2},"tl-res"));});
+
+  /* the thinkers — dot plus name */
+  LANE_ORDER.forEach(p=>lanes[p].items.forEach(({n,x,rad,row})=>{
+    const y=laneTop[p]+TL.bandPad+row*TL.rowH+TL.rowH/2;
+    const g=mk("g",{transform:"translate("+x.toFixed(1)+" "+y.toFixed(1)+")"},"tl-node");
+    g.dataset.id=n.id;
+    const c=mk("circle",{r:rad,fill:PLATEAUS[p].color});c.style.color=PLATEAUS[p].color;
+    const t=mk("text",{x:rad+7,y:0});t.textContent=n.name;
     g.appendChild(c);g.appendChild(t);tlSvg.appendChild(g);
-    g.addEventListener("click",()=>openPanel(n));
-  });
-  tlBuilt=true;
+    g.addEventListener("click",()=>{if(tlMoved)return;openPanel(n);});}));
+
+  /* stream names — pinned to the left edge while you pan */
+  tlGutter=mk("g",{},"tl-gutter");
+  tlGutter.appendChild(mk("rect",{x:0,y:TL.axisH-8,width:TL.padL-16,height:totalH-TL.axisH+8},"tl-gutterbg"));
+  LANE_ORDER.forEach(p=>{const cy=laneTop[p]+laneH[p]/2;
+    tlGutter.appendChild(mk("rect",{x:14,y:laneTop[p]+5,width:3,height:laneH[p]-10,rx:1.5,
+      fill:PLATEAUS[p].color,opacity:.8}));
+    const t=mk("text",{x:26,y:cy,fill:PLATEAUS[p].color},"tl-lanelabel");
+    t.textContent=PLATEAUS[p].label;tlGutter.appendChild(t);});
+  tlSvg.appendChild(tlGutter);
+
+  /* the year axis — pinned to the top while you pan */
+  tlAxis=mk("g",{},"tl-axis");
+  tlAxis.appendChild(mk("rect",{x:0,y:0,width:totalW,height:TL.axisH-10},"tl-axisbg"));
+  for(let yr=-600;yr<=1900;yr+=100){const x=xToPix(yr),major=(yr%500===0);
+    const t=mk("text",{x:x,y:30},"tl-gridlabel"+(major?" major":""));t.textContent=yearLabel(yr);
+    tlAxis.appendChild(t);}
+  seams.forEach(([yr,lbl])=>{const x=xToPix(yr);
+    tlAxis.appendChild(mk("line",{x1:x,x2:x,y1:38,y2:TL.axisH-10},"tl-seam"));
+    const t=mk("text",{x:x+6,y:58},"tl-seamlabel");t.textContent=lbl;tlAxis.appendChild(t);});
+  tlSvg.appendChild(tlAxis);
+
+  syncSticky();
 }
+function syncSticky(){
+  if(tlGutter)tlGutter.setAttribute("transform","translate("+tlWrap.scrollLeft+" 0)");
+  if(tlAxis)tlAxis.setAttribute("transform","translate(0 "+tlWrap.scrollTop+")");
+}
+tlWrap.addEventListener("scroll",syncSticky);
+
+/* drag to pan, the same feel as the rhizome */
+let tlDrag=null;
+tlWrap.addEventListener("pointerdown",e=>{if(e.button!==0)return;
+  tlMoved=false;tlDrag={sx:e.clientX,sy:e.clientY,ox:tlWrap.scrollLeft,oy:tlWrap.scrollTop};
+  tlWrap.setPointerCapture(e.pointerId);tlWrap.classList.add("dragging");});
+tlWrap.addEventListener("pointermove",e=>{if(!tlDrag)return;
+  const dx=e.clientX-tlDrag.sx,dy=e.clientY-tlDrag.sy;
+  if(Math.abs(dx)>3||Math.abs(dy)>3)tlMoved=true;
+  tlWrap.scrollLeft=tlDrag.ox-dx;tlWrap.scrollTop=tlDrag.oy-dy;});
+["pointerup","pointercancel"].forEach(ev=>tlWrap.addEventListener(ev,()=>{
+  tlDrag=null;tlWrap.classList.remove("dragging");}));
+/* a plain wheel walks downstream when there is nothing to scroll vertically */
+tlWrap.addEventListener("wheel",e=>{
+  if(e.shiftKey||e.deltaY===0)return;
+  if(tlWrap.scrollHeight<=tlWrap.clientHeight+2){tlWrap.scrollLeft+=e.deltaY;e.preventDefault();}
+},{passive:false});
 
 /* ================= view toggle ================= */
 const rhizomeWrap=rSvg, timelineWrap=document.getElementById("timelineWrap");
@@ -458,11 +538,13 @@ const btnR=document.getElementById("viewRhizome"),btnT=document.getElementById("
 function setMode(m){mode=m;
   btnR.classList.toggle("active",m==="rhizome");btnT.classList.toggle("active",m==="timeline");
   panel.classList.remove("open");lockHi=false;
+  document.body.classList.toggle("river",m==="timeline");
   if(m==="rhizome"){timelineWrap.classList.add("hidden");rSvg.classList.remove("hidden");alpha=Math.max(alpha,.4);clearHi();}
   else{rSvg.classList.add("hidden");timelineWrap.classList.remove("hidden");if(pathActive)pathBtn.onclick();buildTimeline();applyFilter();}
 }
 btnR.onclick=()=>setMode("rhizome");btnT.onclick=()=>setMode("timeline");
-window.addEventListener("resize",()=>{if(mode==="timeline")buildTimeline();});
+window.addEventListener("resize",()=>{if(mode!=="timeline")return;
+  const l=tlWrap.scrollLeft,t=tlWrap.scrollTop;buildTimeline();tlWrap.scrollLeft=l;tlWrap.scrollTop=t;});
 
 /* ================= intro ================= */
 const intro=document.getElementById("intro");
