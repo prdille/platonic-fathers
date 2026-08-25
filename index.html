@@ -26,6 +26,24 @@
     color:var(--feast);font-size:.95rem;letter-spacing:.1em;margin-bottom:1.6rem}
   .feast-banner.show{display:block}
 
+  /* day navigation */
+  .daynav{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-bottom:.3rem}
+  .daynav .eyebrow{margin:0}
+  .daynav button{font-family:'IM Fell English SC',serif;font-size:1.05rem;color:var(--ink-dim);
+    background:none;border:1px solid transparent;border-radius:6px;padding:0 .45rem;
+    cursor:pointer;line-height:1.5;transition:.18s}
+  .daynav button:hover:not(:disabled){color:var(--gold);border-color:var(--line)}
+  .daynav button:disabled{opacity:.22;cursor:default}
+  .dayjump{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-bottom:1.5rem;
+    font-family:'IM Fell English SC',serif;font-size:.7rem;letter-spacing:.1em;color:var(--ink-dim)}
+  .dayjump input[type=date]{font-family:inherit;font-size:.7rem;letter-spacing:.05em;color:var(--ink-dim);
+    background:transparent;border:1px solid var(--line);border-radius:6px;padding:.15rem .4rem;
+    color-scheme:dark;cursor:pointer}
+  .dayjump input[type=date]:hover{border-color:var(--gold);color:var(--gold-soft)}
+  .dayjump a{color:var(--ink-dim);text-decoration:none;border-bottom:1px solid transparent;cursor:pointer}
+  .dayjump a:hover{color:var(--gold);border-bottom-color:var(--gold)}
+  .dayjump a.gone{visibility:hidden}
+
   .nav{display:flex;justify-content:center;gap:1.6rem;margin-bottom:2rem}
   .nav a{font-family:'IM Fell English SC',serif;font-size:.85rem;
     letter-spacing:.12em;color:var(--ink-dim);text-decoration:none;
@@ -84,7 +102,16 @@
   <nav class="nav">
     <a href="rhizome/">The Rhizome &amp; the River</a>
   </nav>
-  <p class="eyebrow" id="dateline">…</p>
+  <div class="daynav">
+    <button id="prevDay" type="button" title="The day before (left arrow)" aria-label="Previous day">&lsaquo;</button>
+    <p class="eyebrow" id="dateline">…</p>
+    <button id="nextDay" type="button" title="The day after (right arrow)" aria-label="Next day">&rsaquo;</button>
+  </div>
+  <div class="dayjump">
+    <label for="dayPick">Jump to</label>
+    <input type="date" id="dayPick">
+    <a id="todayLink" class="gone" role="button" tabindex="0">Back to today</a>
+  </div>
   <p class="feast-banner" id="feast"></p>
 
   <blockquote id="qtext">Loading the day's reading…</blockquote>
@@ -171,46 +198,120 @@ function inLent(dt){
 function hash(s){let h=0;for(const ch of s){h=(h*31+ch.charCodeAt(0))>>>0}return h}
 
 const LAUNCH = new Date(2026, 7, 24); // day 0 of the cycle — edit to your launch date
-const dayNumber = dt => Math.floor((dt - LAUNCH) / 86400000);
+/* Count whole calendar days, not milliseconds: across a DST shift a
+   midnight-to-midnight span is 23 or 25 hours, which floor() would
+   round to the wrong day. */
+const dayNumber = dt => Math.round(
+  (Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()) - Date.UTC(2026, 7, 24)) / 86400000);
 
-async function run(){
-  const res = await fetch("quotes.json");
-  const data = await res.json();
-  const quotes = data.quotes;
+/* ---- day helpers ---- */
+const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const addDays  = (d,n) => { const x = midnight(d); x.setDate(x.getDate()+n); return x; };
+const iso      = d => d.getFullYear() + "-" +
+  String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+const fromISO  = str => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str || "");
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  return isNaN(d) ? null : d; };
 
-  // Order the corpus by arc position, then by id for stability
-  const arcPos = a => { const i = ARC.indexOf(a); return i < 0 ? ARC.length : i; };
-  const ordered = [...quotes].sort((x,y) =>
-    arcPos(x.author) - arcPos(y.author) || x.id.localeCompare(y.id));
+let STATE = null;    // the corpus, loaded once
+let current = null;  // the day being read
 
-  const today = new Date();
-  const n = ((dayNumber(today) % ordered.length) + ordered.length) % ordered.length;
+/* The reading for a given day is a pure function of the date — which is why
+   any past day can be recovered without storing a thing. */
+function selectFor(day, quotes, ordered){
+  const n = ((dayNumber(day) % ordered.length) + ordered.length) % ordered.length;
   let pick = ordered[n];
   let feastName = null;
 
   // Liturgical overlay: feast override wins, Lent biases apophatic/ascent
-  const feast = FEASTS.find(f => f.m === today.getMonth()+1 && f.d === today.getDate());
+  const feast = FEASTS.find(f => f.m === day.getMonth()+1 && f.d === day.getDate());
   const pool = feast
     ? quotes.filter(q => q.tags.some(t => feast.tags.includes(t)))
-    : (inLent(today) && dayNumber(today) % 3 === 0   // every third Lenten day
+    : (inLent(day) && dayNumber(day) % 3 === 0   // every third Lenten day
         ? quotes.filter(q => q.tags.some(t => ["apophasis","ascent"].includes(t)))
         : null);
   if (pool && pool.length){
-    pick = pool[hash(today.getFullYear() + (feast ? feast.name : "lent") + today.getDate()) % pool.length];
+    pick = pool[hash(day.getFullYear() + (feast ? feast.name : "lent") + day.getDate()) % pool.length];
     feastName = feast ? feast.name : "Lent — the way of unknowing";
   }
-
-  render(pick, ordered, feastName, data._meta);
+  return {pick, feastName};
 }
 
-function render(q, ordered, feastName, meta){
+function show(day, push){
+  current = midnight(day);
+  const {pick, feastName} = selectFor(current, STATE.quotes, STATE.ordered);
+  render(pick, current, feastName, STATE.meta);
+
+  const today = midnight(new Date()), onToday = current.getTime() === today.getTime();
+  document.getElementById("nextDay").disabled = onToday;
+  document.getElementById("todayLink").classList.toggle("gone", onToday);
+  const picker = document.getElementById("dayPick");
+  picker.value = iso(current);
+  picker.max = iso(today);
+
+  // a day is a shareable address, and the back button walks the days
+  try {
+    const url = onToday ? location.pathname : location.pathname + "?d=" + iso(current);
+    history[push ? "pushState" : "replaceState"]({d: iso(current)}, "", url);
+  } catch(e){ /* no history API on file:// — navigation still works */ }
+}
+
+const stepDay = n => {
+  const d = addDays(current, n);
+  if (d <= midnight(new Date())) show(d, true);   // never read ahead of today
+};
+
+function wireDayNav(){
+  document.getElementById("prevDay").onclick = () => stepDay(-1);
+  document.getElementById("nextDay").onclick = () => stepDay(1);
+  document.getElementById("dayPick").onchange = e => {
+    const d = fromISO(e.target.value);
+    if (d) show(d > midnight(new Date()) ? new Date() : d, true);
+  };
+  const home = () => show(new Date(), true);
+  const todayLink = document.getElementById("todayLink");
+  todayLink.onclick = home;
+  todayLink.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); home(); } };
+
+  window.addEventListener("popstate", e => {
+    const d = fromISO(e.state && e.state.d) ||
+              fromISO(new URLSearchParams(location.search).get("d")) || new Date();
+    show(d, false);
+  });
+  document.addEventListener("keydown", e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "ArrowLeft")  { e.preventDefault(); stepDay(-1); }
+    if (e.key === "ArrowRight") { e.preventDefault(); stepDay(1);  }
+  });
+}
+
+async function run(){
+  const res = await fetch("quotes.json");
+  const data = await res.json();
+
+  // Order the corpus by arc position, then by id for stability
+  const arcPos = a => { const i = ARC.indexOf(a); return i < 0 ? ARC.length : i; };
+  STATE = {
+    quotes: data.quotes,
+    ordered: [...data.quotes].sort((x,y) =>
+      arcPos(x.author) - arcPos(y.author) || x.id.localeCompare(y.id)),
+    meta: data._meta
+  };
+
+  const asked = fromISO(new URLSearchParams(location.search).get("d"));
+  const today = midnight(new Date());
+  show(asked && asked <= today ? asked : today, false);
+  wireDayNav();
+}
+
+function render(q, day, feastName, meta){
   const fmt = new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
-  document.getElementById("dateline").textContent = fmt.format(new Date());
-  if (feastName){
-    const fb = document.getElementById("feast");
-    fb.textContent = "✦ " + feastName + " ✦";
-    fb.classList.add("show");
-  }
+  document.getElementById("dateline").textContent = fmt.format(day);
+  const fb = document.getElementById("feast");            // clear a stale banner when moving days
+  fb.textContent = feastName ? "✦ " + feastName + " ✦" : "";
+  fb.classList.toggle("show", !!feastName);
 
   document.getElementById("qtext").textContent = q.text;
   document.getElementById("attrib").innerHTML =
