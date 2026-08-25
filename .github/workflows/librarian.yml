@@ -1,0 +1,43 @@
+# ============================================================
+# The Librarian — weekly quote-proposal agent (STUB)
+#
+# What it will do when enabled:
+#   1. Read quotes.json (current corpus + taxonomy)
+#   2. Ask Claude to PROPOSE 3-5 new public-domain quotes
+#      matching the curation principle in _meta
+#   3. VERIFY each proposal by fetching the cited source page
+#      (New Advent / CCEL) and checking the text appears there
+#   4. Open a PULL REQUEST with verified proposals only
+#      -> a human (you) reviews and merges. Nothing ships
+#         without your eyes on it.
+#
+# The agent pattern here: propose -> fetch -> check -> revise.
+# The reliability pattern: AI curates, human gates, site serves
+# only merged data.
+#
+# TO ENABLE:
+#   - Add ANTHROPIC_API_KEY as a repo secret (Settings > Secrets)
+#   - Uncomment the `schedule:` block
+#   - Replace the echo step with the real script (ask Claude to
+#     write scripts/librarian.py when you're ready for step 2)
+# ============================================================
+
+name: librarian
+on:
+  workflow_dispatch: {}   # manual "Run workflow" button only, for now
+  # schedule:
+  #   - cron: "0 12 * * 1"   # Mondays 12:00 UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder
+        run: |
+          echo "The Librarian is not yet awake."
+          echo "Corpus size: $(python3 -c "import json;print(len(json.load(open('quotes.json'))['quotes']))") quotes"

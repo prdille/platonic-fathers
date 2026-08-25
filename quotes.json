@@ -1,0 +1,390 @@
+{
+  "_meta": {
+    "title": "Platonic Church Fathers — Quote of the Day (seed content)",
+    "curation_principle": "Passages where the Platonic inheritance is visible in Christian authors — participation, logos, image/archetype, ascent, apophasis, divinization, the Good beyond being, the self-diffusing descent — weighted toward the figures we traced: Philo, Clement, Origen, Athanasius, Gregory of Nyssa, Pseudo-Dionysius, Augustine, Boethius, John of Damascus, plus a Marian 'receptacle/container' set.",
+    "IMPORTANT_verify_before_publishing": "Wording and citation numbers below are curated from close familiarity, NOT transcribed from an open copy. Before shipping, confirm each 'text' and 'citation' against the linked public-domain source (New Advent, CCEL, or archive.org Schaff/ANF/NPNF volumes). Entries whose translation field contains '(VERIFY)' are the ones I am least sure of on exact wording.",
+    "deliberate_omissions": "Maximus the Confessor and Nicholas of Cusa are ABSENT on purpose: their best translations (Berthold, Constas, Hopkins-modern, Heron) are in copyright, and no clean Schaff-era public-domain translation exists for the passages that matter. Rather than fabricate or infringe, source them separately (Hopkins' Cusa is free on his site but check its license; Constas' Maximus is copyright). Gregory's 'Life of Moses' quotes are flagged because Malherbe/Ferguson is in copyright — you need an older PD rendering or your own from the Greek.",
+    "license_note": "All translations cited are 19th/early-20th c. and in the public domain in the US. Confirm for your jurisdiction."
+  },
+
+  "concept_tags": {
+    "participation": "Methexis — creatures are real only by sharing in God/Being; the ladder from image to source.",
+    "logos": "The Word / divine Reason; and the logoi, the inner reasons of things resident in the Word.",
+    "image-archetype": "Eikon / imago / vestige; the creature as image of a divine exemplar (exemplarism, the Forms as God's Ideas).",
+    "ascent": "Anagoge and epektasis — the soul's climb, and its endless stretching into an infinite God.",
+    "apophasis": "The negative way; God known by unknowing; the luminous darkness above speech and mind.",
+    "divinization": "Theosis / deification — the descent of God so that the creature might be raised into God.",
+    "beyond-being": "The Good/One above being (hyperousia) — the summit the ladder points to but cannot contain.",
+    "descent-gift": "The self-diffusing Good (bonum diffusivum sui); God's ungrudging condescension, giving being and Himself in measure.",
+    "ex-nihilo-privation": "Creation from nothing, and the gravity back toward nothing (phthora) that the Word holds us against.",
+    "eros-desire": "Longing as the wing; the 'between' of the lover who reaches because he lacks; restless until rest in God.",
+    "beauty-theophany": "The Beautiful as cause and as showing-forth of God; creation as theophany.",
+    "marian": "Section marker: the Theotokos as receptacle/container of the Uncontainable — the Timaeus chora Christened."
+  },
+
+  "quotes": [
+    {
+      "id": "ath-incarnation-01",
+      "text": "He became man that we might be made God; and He manifested Himself by a body that we might receive the idea of the unseen Father; and He endured the insolence of men that we might inherit immortality.",
+      "author": "Athanasius of Alexandria",
+      "work": "On the Incarnation of the Word",
+      "citation": "\u00a754.3",
+      "translation": "Archibald Robertson, NPNF2 vol. 4 (New Advent / CCEL)",
+      "tags": ["divinization", "descent-gift", "logos"],
+      "note": "The exchange-formula itself: the whole descent-and-ascent in one sentence. God comes down the ladder so we can climb it \u2014 the answer to every pagan One that stayed silent at the top.",
+      "platonic_echo": "Timaeus 29e (the ungrudging maker); the ascent of Symposium 211 answered by descent"
+    },
+    {
+      "id": "ath-incarnation-02",
+      "text": "God is good, or rather is essentially the source of goodness: nor could one that is good be niggardly of anything: whence, grudging existence to none, He made all things out of nothing by His own Word.",
+      "author": "Athanasius of Alexandria",
+      "work": "On the Incarnation of the Word",
+      "citation": "\u00a73.3",
+      "translation": "Archibald Robertson, NPNF2 vol. 4 (VERIFY exact wording)",
+      "tags": ["descent-gift", "ex-nihilo-privation", "logos"],
+      "note": "The weld you found yourself: Plato's ungrudging maker kept, and corrected \u2014 the generosity pushed all the way down from shaping order to granting existence. That 'out of nothing' is where Athens becomes Jerusalem.",
+      "platonic_echo": "Timaeus 29e (\u2018no envy ever arises in one who is good\u2019)"
+    },
+    {
+      "id": "ath-incarnation-03",
+      "text": "For the transgression of the commandment was turning them back to their natural state; so that just as they had their being out of nothing, so also they might justly look for corruption into nothing in the course of time.",
+      "author": "Athanasius of Alexandria",
+      "work": "On the Incarnation of the Word",
+      "citation": "\u00a74.4",
+      "translation": "Archibald Robertson, NPNF2 vol. 4 (VERIFY exact wording)",
+      "tags": ["ex-nihilo-privation"],
+      "note": "Phthora as de-creation: the creature made from nothing has a native gravity back toward nothing, and only the Word holds it in being. This is why an ex-nihilo cosmos needs a Redeemer and Plato's shaped one did not.",
+      "platonic_echo": "Timaeus (matter/receptacle) \u2014 corrected: non-being as privation, not substrate"
+    },
+    {
+      "id": "philo-opificio-01",
+      "text": "The world discernible only by the intellect is nothing else than the Word of God when He was already occupied in the act of creation. For the city discernible by the intellect is nothing else than the reasoning of the architect who is already designing to build the visible city.",
+      "author": "Philo of Alexandria",
+      "work": "On the Creation of the World (De Opificio Mundi)",
+      "citation": "\u00a724",
+      "translation": "C. D. Yonge, 1854\u201390 (public domain)",
+      "tags": ["logos", "image-archetype", "participation"],
+      "note": "The Jewish headwater doing your exact move before Christ: the intelligible world of Forms relocated into the mind of God as His Logos. The architect's plan is the Platonic paradigm, Christened in advance of Christianity.",
+      "platonic_echo": "Timaeus 28a\u201329b (the paradigm the Demiurge looks to)"
+    },
+    {
+      "id": "philo-heir-01",
+      "text": "To His Word, His chief messenger, highest in age and honour, the Father of all has given the special prerogative, to stand on the border and separate the creature from the Creator. This same Word both pleads with the immortal as suppliant for afflicted mortality and acts as ambassador of the ruler to the subject.",
+      "author": "Philo of Alexandria",
+      "work": "Who Is the Heir of Divine Things (Quis Rerum Divinarum Heres)",
+      "citation": "\u00a7205\u2013206",
+      "translation": "C. D. Yonge, 1854\u201390 (public domain) (VERIFY wording)",
+      "tags": ["logos", "descent-gift", "participation"],
+      "note": "The Logos as the standing-between, the mediator on the border of Creator and creature. Philo has the slot the Parmenides left empty \u2014 and John 1 will fill it with flesh.",
+      "platonic_echo": "Symposium 202e (the metaxu, the intermediate); Timaeus (World-Soul as mediator)"
+    },
+    {
+      "id": "clement-protrepticus-01",
+      "text": "The Word of God became man, that you may learn from man how man may become God.",
+      "author": "Clement of Alexandria",
+      "work": "Exhortation to the Greeks (Protrepticus)",
+      "citation": "ch. 1",
+      "translation": "William Wilson, ANF vol. 2 (VERIFY exact wording/locus)",
+      "tags": ["divinization", "logos", "descent-gift"],
+      "note": "The exchange-formula a generation before Athanasius \u2014 proof the divinization theme is native to Alexandria, not a late flourish. Clement, the elder who first argued the whole synthesis was even allowed.",
+      "platonic_echo": "Theaetetus 176b (likeness to God as the goal)"
+    },
+    {
+      "id": "clement-stromata-01",
+      "text": "Philosophy was to the Greeks what the Law was to the Hebrews, a tutor escorting them to Christ. Philosophy, therefore, was a preparation, paving the way for him who is perfected in Christ.",
+      "author": "Clement of Alexandria",
+      "work": "Stromata (Miscellanies)",
+      "citation": "I.5",
+      "translation": "William Wilson, ANF vol. 2 (VERIFY exact wording)",
+      "tags": ["participation", "logos"],
+      "note": "The founding warrant of your whole project: Greek philosophy as providential preparation for the Gospel, a tutor to Christ. The manifesto behind the lex formalis.",
+      "platonic_echo": "n/a (the meta-claim that licenses the Platonic echoes)"
+    },
+    {
+      "id": "clement-stromata-02",
+      "text": "To follow God is the wish of the soul; and to imitate God, as far as possible, is the end. This is the truly kingly man, this the sacred prophet.",
+      "author": "Clement of Alexandria",
+      "work": "Stromata (Miscellanies)",
+      "citation": "II.19",
+      "translation": "William Wilson, ANF vol. 2 (VERIFY wording)",
+      "tags": ["divinization", "ascent"],
+      "note": "Homoiosis theoi \u2014 assimilation to God \u2014 lifted straight from Plato and baptized. The Theaetetus goal becomes the shape of the Christian life.",
+      "platonic_echo": "Theaetetus 176b (\u2018becoming like God so far as is possible\u2019)"
+    },
+    {
+      "id": "origen-principiis-01",
+      "text": "The Son is the invisible image of the invisible God, as we call the image of the emperor which is on a coin. As our will is not visible to the eyes yet is imaged in an act, so the Son is the image of the Father's power and wisdom.",
+      "author": "Origen of Alexandria",
+      "work": "On First Principles (De Principiis)",
+      "citation": "I.2",
+      "translation": "Frederick Crombie, ANF vol. 4 (VERIFY wording)",
+      "tags": ["image-archetype", "logos"],
+      "note": "The Logos as perfect Image of the Father \u2014 the pattern of all exemplarism. Read with discernment: the fountainhead of Christian Platonism, and a man the Church later pruned.",
+      "platonic_echo": "Republic 509 (the Good and its offspring, the sun); Timaeus (image of the paradigm)"
+    },
+    {
+      "id": "origen-principiis-02",
+      "text": "As the eye naturally seeks the light and vision, and our body naturally desires food and drink, so our mind is possessed with a natural desire to know the truth of God and to search out the causes of things.",
+      "author": "Origen of Alexandria",
+      "work": "On First Principles (De Principiis)",
+      "citation": "II.11.4",
+      "translation": "Frederick Crombie, ANF vol. 4 (VERIFY wording)",
+      "tags": ["eros-desire", "ascent"],
+      "note": "The hunger built into the mind as the eye is built for light \u2014 desire as the God-given engine of the ascent. Diotima's between, in a Christian key.",
+      "platonic_echo": "Symposium 200 (eros as lack that reaches); Republic 508 (eye and sun)"
+    },
+    {
+      "id": "greg-nyssa-image-01",
+      "text": "God is in His own nature all that which our mind can conceive of good \u2014 rather, transcending all good that we can conceive or comprehend. He creates man for no other reason than that He is good; and being such, He made human nature share in every good.",
+      "author": "Gregory of Nyssa",
+      "work": "On the Making of Man (De Hominis Opificio)",
+      "citation": "ch. 16",
+      "translation": "H. A. Wilson, NPNF2 vol. 5 (VERIFY wording)",
+      "tags": ["image-archetype", "participation", "descent-gift"],
+      "note": "Man as image made to share the divine goodness \u2014 participation as the ground of the imago Dei. The good God gives, ungrudgingly, a nature capable of Him.",
+      "platonic_echo": "Timaeus 29e (goodness as motive of creation)"
+    },
+    {
+      "id": "greg-nyssa-epektasis-01",
+      "text": "This is the true knowledge of what is sought; this is the seeing that consists in not seeing, because that which is sought transcends all knowledge, being separated on all sides by incomprehensibility as by a kind of darkness.",
+      "author": "Gregory of Nyssa",
+      "work": "The Life of Moses",
+      "citation": "II.163",
+      "translation": "PUBLIC-DOMAIN TRANSLATION NEEDED \u2014 Malherbe/Ferguson is in copyright; source an older rendering or translate from the Greek before publishing",
+      "tags": ["apophasis", "ascent", "beyond-being"],
+      "note": "Moses into the darkness on Sinai: seeing-by-not-seeing, the luminous darkness a century before Dionysius names it. The summit reached by unknowing.",
+      "platonic_echo": "Republic 509b (the Good beyond being); Symposium 210\u201311 (the ascent)"
+    },
+    {
+      "id": "greg-nyssa-epektasis-02",
+      "text": "The soul that looks up toward God and conceives that good desire for His eternal beauty constantly experiences an ever-new yearning; and so its desire is never given its full satisfaction, but is forever stretching out toward what lies ahead.",
+      "author": "Gregory of Nyssa",
+      "work": "The Life of Moses",
+      "citation": "II.231\u2013239 (epektasis)",
+      "translation": "PUBLIC-DOMAIN TRANSLATION NEEDED \u2014 verify/replace before publishing",
+      "tags": ["ascent", "eros-desire", "beyond-being"],
+      "note": "Epektasis: because God is infinite, the soul never arrives \u2014 it stretches forever, each satisfaction opening a deeper desire. Gregory's great gift: the hunger you feared is not a defect but the eternal shape of blessedness.",
+      "platonic_echo": "Symposium 210a\u2013211c (Diotima's ladder \u2014 here made endless)"
+    },
+    {
+      "id": "dionysius-mt-01",
+      "text": "Unto this Darkness which is beyond Light we pray that we may come, and may attain unto vision through the loss of sight and knowledge, and that in ceasing thus to see or to know we may learn to know that which is beyond all perception and understanding.",
+      "author": "Pseudo-Dionysius the Areopagite",
+      "work": "The Mystical Theology",
+      "citation": "ch. 2",
+      "translation": "John Parker, 1897 (public domain) \u2014 the very translation Roger Pearse digitized",
+      "tags": ["apophasis", "beyond-being", "ascent"],
+      "note": "Proclus baptized: the negative ascent into the divine darkness, but ending in union rather than the Parmenides' dead-end \u2014 because a God who first came down waits at the top.",
+      "platonic_echo": "Parmenides 137\u201342 (the One negated); Republic 509b (beyond being)"
+    },
+    {
+      "id": "dionysius-dn-01",
+      "text": "The Good is described as the Light of the mind, because it illuminates the mind of every supercelestial being with the light of the mind, and because it drives away the ignorance and error seated in souls; and to all things that are it distributes existence.",
+      "author": "Pseudo-Dionysius the Areopagite",
+      "work": "The Divine Names",
+      "citation": "ch. 4",
+      "translation": "John Parker, 1897 (public domain) (VERIFY wording)",
+      "tags": ["descent-gift", "beauty-theophany", "beyond-being"],
+      "note": "The self-diffusing Good \u2014 bonum diffusivum sui \u2014 pouring light and being downward. The descent half of the arc, and the ancestor of your water/baptism pillar: grace poured out in measure.",
+      "platonic_echo": "Republic 508\u201309 (the sun and the Good); Timaeus 29e (ungrudging giving)"
+    },
+    {
+      "id": "dionysius-dn-02",
+      "text": "We must not dare to speak, nor indeed to form any conception, of the hidden super-essential Godhead, except those things that are divinely revealed to us from the sacred Scriptures. For the unknowing of what is beyond being is above speech and mind and being itself.",
+      "author": "Pseudo-Dionysius the Areopagite",
+      "work": "The Divine Names",
+      "citation": "ch. 1",
+      "translation": "John Parker, 1897 (public domain) (VERIFY wording)",
+      "tags": ["apophasis", "beyond-being"],
+      "note": "The guardrail on the whole mystical enterprise: the ladder is Scripture's ladder. You climb by revelation, not speculation \u2014 the answer to the fear that all this ascending could float free of the faith.",
+      "platonic_echo": "Republic 509b (epekeina tes ousias, beyond being)"
+    },
+    {
+      "id": "augustine-confessions-01",
+      "text": "Thou hast made us for Thyself, and our heart is restless, until it repose in Thee.",
+      "author": "Augustine of Hippo",
+      "work": "Confessions",
+      "citation": "I.1",
+      "translation": "E. B. Pusey, 1838 (public domain)",
+      "tags": ["eros-desire", "ascent"],
+      "note": "Diotima's between, baptized: the restlessness is not the obstacle to the journey but the journey itself. The ache is the sign of life.",
+      "platonic_echo": "Symposium 200\u2013204 (eros as lack that reaches for the good)"
+    },
+    {
+      "id": "augustine-confessions-02",
+      "text": "There I read, not indeed in these words, but this in effect confirmed by many and diverse reasons, that in the beginning was the Word, and the Word was with God, and the Word was God. But that the Word was made flesh, and dwelt among us, I read not there.",
+      "author": "Augustine of Hippo",
+      "work": "Confessions",
+      "citation": "VII.9",
+      "translation": "E. B. Pusey, 1838 (public domain)",
+      "tags": ["logos", "participation"],
+      "note": "The exact seam of your whole project, in Augustine's own hands: the Platonists have the Logos \u2014 but not the Logos made flesh. Athens gives the Word; only the Gospel gives the descent.",
+      "platonic_echo": "Plotinus, Enneads V (the Word/Nous) \u2014 'the books of the Platonists'"
+    },
+    {
+      "id": "augustine-city-01",
+      "text": "None come nearer to us than the Platonists. For they have perceived that the true God is the author of all things, the illuminator of truth, and the bestower of blessedness.",
+      "author": "Augustine of Hippo",
+      "work": "The City of God",
+      "citation": "VIII.5",
+      "translation": "Marcus Dods, NPNF1 vol. 2 (VERIFY wording)",
+      "tags": ["participation", "beyond-being"],
+      "note": "Augustine's own verdict: of all the pagans, the Platonists stand nearest the faith. The warrant, from the greatest Latin Father, for taking Plato seriously \u2014 and for correcting him where he stops short.",
+      "platonic_echo": "n/a (the meta-judgment on Platonism itself)"
+    },
+    {
+      "id": "augustine-trinity-01",
+      "text": "We are, and we know that we are, and we love to be and to know that we are. In these three there is no likeness that deludes us with false images; for we do not perceive these by any bodily sense, as we perceive things outside us.",
+      "author": "Augustine of Hippo",
+      "work": "The City of God",
+      "citation": "XI.26",
+      "translation": "Marcus Dods, NPNF1 vol. 2 (VERIFY wording)",
+      "tags": ["image-archetype", "participation"],
+      "note": "The image of the Trinity found within the mind's own structure \u2014 Augustine's inward path to God, the counterpart to Dionysius's upward one. Two motions Bonaventure will later braid.",
+      "platonic_echo": "the Delphic 'know thyself' as ascent inward"
+    },
+    {
+      "id": "boethius-consolation-01",
+      "text": "O Thou who dost by everlasting reason rule, Creator of the planets and the sky, who bringest forth the fair world after the pattern in Thy mind, Thyself most fair, bind Thou the elements and let all things flow from that high archetype.",
+      "author": "Boethius",
+      "work": "The Consolation of Philosophy",
+      "citation": "Book III, poem 9 ('O qui perpetua')",
+      "translation": "after H. R. James, 1897 (public domain) (VERIFY \u2014 versify to match your chosen PD text)",
+      "tags": ["image-archetype", "participation", "descent-gift"],
+      "note": "The most Platonic poem in the Christian canon \u2014 a versification of the Timaeus itself, creation 'after the pattern in Thy mind.' The last Roman handing the archetype-cosmos to the Latin Middle Ages.",
+      "platonic_echo": "Timaeus 28a\u201330c (the maker shaping the cosmos after the eternal pattern)"
+    },
+    {
+      "id": "boethius-consolation-02",
+      "text": "All things seek again their proper courses, and rejoice in their return; nor is any order given to things save that which joins the end to the beginning, and makes the circle of its own course stable.",
+      "author": "Boethius",
+      "work": "The Consolation of Philosophy",
+      "citation": "Book III, poem 2 / prose 12 (VERIFY locus)",
+      "translation": "H. R. James, 1897 (public domain) (VERIFY wording)",
+      "tags": ["participation", "ascent", "beyond-being"],
+      "note": "Exitus and reditus \u2014 all things going out from and returning to the Good they desire. The procession-and-return arc, sung, at the hinge between antiquity and the medieval West.",
+      "platonic_echo": "the Good all things desire (Republic 505); the return of the soul"
+    },
+    {
+      "id": "damascene-faith-01",
+      "text": "It is plain that there is a God. But what He is in His essence is altogether beyond comprehension and knowledge. That God is incorporeal is clear. For how could that be a body which is infinite, boundless, formless, intangible and invisible, in short simple and not compound?",
+      "author": "John of Damascus",
+      "work": "An Exposition of the Orthodox Faith",
+      "citation": "I.4",
+      "translation": "S. D. F. Salmond, NPNF2 vol. 9 (VERIFY wording)",
+      "tags": ["apophasis", "beyond-being"],
+      "note": "The apophatic inheritance codified: we can say God is, and what He is not, but not what He is in His essence. Dionysius's darkness, made a settled article of the faith.",
+      "platonic_echo": "Parmenides (negations of the One); Republic 509b (beyond being)"
+    },
+    {
+      "id": "damascene-faith-02",
+      "text": "The whole earth was filled with the knowledge of the Lord as the waters cover the sea. And the true light that lighteth every man coming into the world overspread all, that the darkness might be driven away.",
+      "author": "John of Damascus",
+      "work": "An Exposition of the Orthodox Faith",
+      "citation": "IV.13 (VERIFY locus)",
+      "translation": "S. D. F. Salmond, NPNF2 vol. 9 (VERIFY wording)",
+      "tags": ["logos", "beauty-theophany", "descent-gift"],
+      "note": "The Logos as the light lighting every man \u2014 the illumination motif that runs from Plato's sun through John's prologue to Bonaventure's hierarchy of lights.",
+      "platonic_echo": "Republic 508 (the sun as image of the Good); John 1:9"
+    },
+    {
+      "id": "damascene-marian-01",
+      "text": "O how did the bounds of narrow room contain Him whom the heavens could not contain? O Theotokos, thou art shown wider than the heavens, for thou didst contain within thy womb thine own Creator, whom the whole creation cannot contain.",
+      "author": "John of Damascus",
+      "work": "Homilies / An Exposition of the Orthodox Faith (Marian passages)",
+      "citation": "on the Theotokos (VERIFY locus; Dormition homilies vary by translation copyright)",
+      "translation": "NPNF2 vol. 9 where available (VERIFY); Dormition-homily translations may be in copyright",
+      "tags": ["marian", "image-archetype", "participation"],
+      "note": "The container of the Uncontainable \u2014 and note the deep resonance: Mary as chora, the receptacle that holds what cannot be held, is the Timaeus' chora (the receptacle of all becoming) Christened. The place that makes room for God.",
+      "platonic_echo": "Timaeus 48e\u201353 (the chora / receptacle of becoming)"
+    },
+    {
+      "id": "proclus-cp-marian-01",
+      "text": "The Virgin Mother\u2019s womb became the loom of the divine dispensation, whereon the Word was woven a robe of flesh: O container of the Uncontainable; O place of the Boundless; workshop of the union of natures.",
+      "author": "Proclus of Constantinople",
+      "work": "Homily 1 (On the Holy Virgin Theotokos)",
+      "citation": "Homily I",
+      "translation": "PUBLIC-DOMAIN TRANSLATION NEEDED \u2014 verify against an out-of-copyright rendering before publishing; modern translations (e.g. Constas) are in copyright",
+      "tags": ["marian", "image-archetype", "participation"],
+      "note": "The locus classicus of 'container of the Uncontainable' and 'place of the Boundless' \u2014 Mary as chora and as the loom where the two natures are joined. The single most Platonic-receptacle Marian text in the Fathers.",
+      "platonic_echo": "Timaeus 48e\u201353 (the chora, the receptacle 'in which' becoming occurs)"
+    },
+    {
+      "id": "ephrem-nativity-01",
+      "text": "The Most High came down and dwelt in a womb, and the Boundless was bounded therein; the fire descended and dwelt in the Bush, and the Bush was not consumed. He whom the world cannot hold, a Virgin\u2019s bosom held.",
+      "author": "Ephrem the Syrian",
+      "work": "Hymns on the Nativity",
+      "citation": "on the Nativity (VERIFY hymn/stanza)",
+      "translation": "J. B. Morris / A. E. Johnston, NPNF2 vol. 13 (VERIFY \u2014 Ephrem translations vary widely)",
+      "tags": ["marian", "descent-gift", "participation"],
+      "note": "The burning bush as type of the Virgin: fire contained without consuming, the Uncontainable held. Descent (the Most High comes down) and container (the womb holds Him) in one image \u2014 your whole arc in a Nativity hymn.",
+      "platonic_echo": "Timaeus 48e\u201353 (the receptacle); the descent that the pagan One never makes"
+    },
+    {
+      "id": "origen-song-01",
+      "text": "The soul is moved by heavenly love and longing when, having clearly beheld the beauty and the fairness of the Word of God, it falls deeply in love with His loveliness and receives from the Word Himself a certain dart and wound of love.",
+      "author": "Origen of Alexandria",
+      "work": "Commentary on the Song of Songs (Prologue)",
+      "citation": "Prologue",
+      "translation": "PUBLIC-DOMAIN TRANSLATION NEEDED \u2014 Lawson (1957) is in copyright; source an older rendering or translate before publishing",
+      "tags": ["eros-desire", "ascent", "beauty-theophany"],
+      "note": "The founding charter of bridal mysticism: the soul wounded by love of the Word's beauty. Origen turns Diotima's eros toward Christ \u2014 the ancestor of Gregory, of Bernard, of John of the Cross.",
+      "platonic_echo": "Symposium 210\u201311 (ascent through beauty); Phaedrus 251 (the wound of eros)"
+    },
+    {
+      "id": "greg-nyssa-beatitudes-01",
+      "text": "The Godhead is purity, freedom from passion, and separation from all evil. If these things be in thee, God is indeed in thee. When then thy mind is untinged by any evil, thou wilt behold the Archetype in thyself.",
+      "author": "Gregory of Nyssa",
+      "work": "On the Beatitudes",
+      "citation": "Sermon 6 (VERIFY wording)",
+      "translation": "NPNF2 vol. 5 where available (VERIFY \u2014 confirm sermon is in the PD volume)",
+      "tags": ["image-archetype", "divinization", "ascent"],
+      "note": "Behold the Archetype in the purified self \u2014 the image cleansed becomes a mirror of its source. The inward ascent: to see God is to become like Him.",
+      "platonic_echo": "Republic 508\u201311 (the soul made like what it beholds); Theaetetus 176b"
+    },
+    {
+      "id": "athanasius-image-01",
+      "text": "For as, when the likeness painted on a panel has been effaced by stains from without, he whose likeness it is must needs come once more to enable the portrait to be renewed on the same wood: so also the all-holy Son of the Father, being the Image of the Father, came to renew man made after Himself.",
+      "author": "Athanasius of Alexandria",
+      "work": "On the Incarnation of the Word",
+      "citation": "\u00a714.1\u20132",
+      "translation": "Archibald Robertson, NPNF2 vol. 4 (VERIFY wording)",
+      "tags": ["image-archetype", "divinization", "descent-gift"],
+      "note": "The portrait-and-sitter: the image defaced can only be restored by the original returning to sit again. The Incarnation as the re-drawing of the imago Dei \u2014 exemplarism turned into rescue.",
+      "platonic_echo": "Timaeus 28\u201329 (copy and paradigm); Republic 500\u2013501 (the painter of the divine pattern)"
+    },
+    {
+      "id": "clement-paedagogus-01",
+      "text": "The Word of God, having become man precisely that thou mayest learn from a man how it may be that man should become God, gives His own image to us, that we, beholding as in a mirror, may be transformed into the same likeness.",
+      "author": "Clement of Alexandria",
+      "work": "The Instructor (Paedagogus)",
+      "citation": "I / III (VERIFY locus and wording)",
+      "translation": "William Wilson, ANF vol. 2 (VERIFY \u2014 possible conflation; confirm before publishing)",
+      "tags": ["divinization", "image-archetype", "logos"],
+      "note": "Beholding the Image and being transformed into its likeness \u2014 the mirror-ascent. Included with a caution flag: confirm this isn't a conflation of two Clement passages before you ship it.",
+      "platonic_echo": "Republic 509 (offspring of the Good); 2 Cor 3:18 read through Platonic mimesis"
+    },
+    {
+      "id": "augustine-confessions-03",
+      "text": "Too late loved I Thee, O Thou Beauty of ancient days, yet ever new! Too late I loved Thee! And behold, Thou wert within, and I abroad, and there I searched for Thee; deformed I, plunging amid those fair forms which Thou hadst made.",
+      "author": "Augustine of Hippo",
+      "work": "Confessions",
+      "citation": "X.27",
+      "translation": "E. B. Pusey, 1838 (public domain)",
+      "tags": ["beauty-theophany", "eros-desire", "ascent"],
+      "note": "Beauty ever ancient, ever new \u2014 the Platonic ascent through 'fair forms' turned confession: the beauty of creatures was the trail, but the Beauty itself was within all along.",
+      "platonic_echo": "Symposium 210a\u2013211d (ascent from fair bodies to Beauty itself)"
+    },
+    {
+      "id": "dionysius-dn-03",
+      "text": "The Beautiful and the Good is the cause of all things being; and by It all things are brought together, and in It all things subsist. Yea, all things desire the Beautiful and Good; and there is nothing in the world but partakes of the Beautiful and Good.",
+      "author": "Pseudo-Dionysius the Areopagite",
+      "work": "The Divine Names",
+      "citation": "ch. 4",
+      "translation": "John Parker, 1897 (public domain) (VERIFY wording)",
+      "tags": ["beauty-theophany", "participation", "descent-gift"],
+      "note": "The Beautiful-and-Good as the cause 'in which all things subsist' and 'which all things desire' \u2014 Plato's Good beyond being, Christened as the source and the longing of everything that is.",
+      "platonic_echo": "Republic 505\u2013509 (the Good all things desire); Symposium 211 (the Beautiful itself)"
+    }
+  ]
+}

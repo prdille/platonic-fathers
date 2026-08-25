@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ascent — Daily Reading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=EB+Garamond:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#0e0b14; --night2:#141020; --panel:#171226;
+    --ink:#e9e2d2; --ink-dim:#a89f8c;
+    --gold:#d8b45a; --gold-soft:#e6cf88;
+    --line:#3a3348; --feast:#c0466a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:
+    radial-gradient(1200px 600px at 50% -10%, var(--night2), var(--night));
+    color:var(--ink);font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.6}
+  main{max-width:640px;margin:0 auto;padding:7vh 22px 4vh}
+
+  .eyebrow{font-family:'IM Fell English SC',serif;font-size:.85rem;
+    letter-spacing:.14em;color:var(--ink-dim);text-align:center;margin-bottom:.4rem}
+  .feast-banner{display:none;text-align:center;font-family:'IM Fell English SC',serif;
+    color:var(--feast);font-size:.95rem;letter-spacing:.1em;margin-bottom:1.6rem}
+  .feast-banner.show{display:block}
+
+  /* the quote */
+  blockquote{margin:2.2rem 0 1.6rem;padding:0;font-size:1.5rem;line-height:1.55;
+    font-weight:400;text-align:left;position:relative}
+  blockquote::first-letter{font-family:'Cormorant',serif;font-weight:700;
+    font-size:3.4em;float:left;line-height:.78;margin:.06em .12em 0 0;color:var(--gold)}
+  .attrib{text-align:right;font-family:'Cormorant',serif;font-size:1.1rem;color:var(--gold-soft)}
+  .attrib .work{font-style:italic;color:var(--ink-dim);display:block;font-size:.95rem}
+  .translation{text-align:right;font-size:.78rem;color:var(--ink-dim);margin-top:.3rem}
+  .verify-mark{color:var(--feast);cursor:help;border-bottom:1px dotted var(--feast)}
+
+  /* commentary */
+  .note{margin:2.4rem 0 0;padding:1.2rem 1.4rem;background:var(--panel);
+    border:1px solid var(--line);border-radius:6px;font-size:1rem;color:var(--ink)}
+  .note .label{font-family:'IM Fell English SC',serif;font-size:.8rem;
+    letter-spacing:.12em;color:var(--ink-dim);display:block;margin-bottom:.4rem}
+  .echo{margin-top:1rem;font-size:.92rem;color:var(--ink-dim);font-style:italic}
+  .echo b{color:var(--gold);font-style:normal;font-weight:600;font-family:'IM Fell English SC',serif;font-size:.8rem;letter-spacing:.1em}
+  .tags{margin-top:1.2rem;display:flex;flex-wrap:wrap;gap:.5rem}
+  .tag{font-size:.72rem;letter-spacing:.08em;color:var(--gold-soft);
+    border:1px solid var(--line);border-radius:999px;padding:.15rem .6rem}
+
+  /* the ladder — signature element: where today sits on the ascent */
+  .ladder{margin:3.2rem 0 0;border-top:1px solid var(--line);padding-top:1.4rem}
+  .ladder .label{font-family:'IM Fell English SC',serif;font-size:.78rem;
+    letter-spacing:.14em;color:var(--ink-dim);text-align:center;display:block;margin-bottom:.9rem}
+  .rungs{display:flex;justify-content:space-between;align-items:flex-end;gap:2px}
+  .rung{flex:1;text-align:center;position:relative;padding-top:14px}
+  .rung::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:6px;height:6px;border-radius:50%;background:var(--line)}
+  .rung.here::before{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+  .rung span{font-size:.6rem;letter-spacing:.05em;color:var(--ink-dim);
+    writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;height:74px;overflow:hidden}
+  .rung.here span{color:var(--gold-soft)}
+
+  footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);
+    font-size:.75rem;color:var(--ink-dim);text-align:center}
+  footer a{color:var(--ink-dim)}
+  @media (max-width:520px){
+    blockquote{font-size:1.28rem}
+    .rung span{height:60px}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    main{animation:rise .9s ease-out}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow" id="dateline">…</p>
+  <p class="feast-banner" id="feast"></p>
+
+  <blockquote id="qtext">Loading the day's reading…</blockquote>
+  <p class="attrib" id="attrib"></p>
+  <p class="translation" id="trans"></p>
+
+  <div class="note" id="notebox" hidden>
+    <span class="label">Why this matters</span>
+    <span id="note"></span>
+    <p class="echo" id="echo"></p>
+    <div class="tags" id="tags"></div>
+  </div>
+
+  <div class="ladder">
+    <span class="label">The Ascent — today's rung</span>
+    <div class="rungs" id="rungs"></div>
+  </div>
+
+  <footer id="foot"></footer>
+</main>
+
+<script>
+/* ============================================================
+   Selection logic: deterministic date-seeded walk up the
+   historical arc, with liturgical feast overrides.
+   No backend — every visitor sees the same quote each day.
+   ============================================================ */
+
+// Historical arc: the order of the ascent
+const ARC = [
+  "Philo of Alexandria",
+  "Clement of Alexandria",
+  "Origen of Alexandria",
+  "Athanasius of Alexandria",
+  "Ephrem the Syrian",
+  "Gregory of Nyssa",
+  "Augustine of Hippo",
+  "Proclus of Constantinople",
+  "Boethius",
+  "Pseudo-Dionysius the Areopagite",
+  "John of Damascus"
+];
+
+// Fixed feasts (month is 1-based) -> preferred tag pool
+const FEASTS = [
+  {m:1,  d:1,  name:"Mary, Mother of God",        tags:["marian"]},
+  {m:3,  d:25, name:"The Annunciation",           tags:["marian","descent-gift"]},
+  {m:8,  d:15, name:"The Assumption",             tags:["marian"]},
+  {m:9,  d:8,  name:"Nativity of Mary",           tags:["marian"]},
+  {m:12, d:8,  name:"The Immaculate Conception",  tags:["marian"]},
+  {m:12, d:25, name:"The Nativity of the Lord",   tags:["divinization","descent-gift"]},
+  {m:1,  d:6,  name:"Epiphany",                   tags:["beauty-theophany","logos"]}
+];
+
+// Anonymous Gregorian computus (Easter Sunday for a given year)
+function easter(y){
+  const a=y%19,b=Math.floor(y/100),c=y%100,dd=Math.floor(b/4),e=b%4,
+    f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-dd-g+15)%30,
+    i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),
+    mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;
+  return new Date(y,mo-1,da);
+}
+function inLent(dt){
+  const e=easter(dt.getFullYear());
+  const ash=new Date(e); ash.setDate(e.getDate()-46);
+  return dt>=ash && dt<e;
+}
+
+// Simple deterministic hash for feast-day variety across years
+function hash(s){let h=0;for(const ch of s){h=(h*31+ch.charCodeAt(0))>>>0}return h}
+
+const LAUNCH = new Date(2026, 7, 24); // day 0 of the cycle — edit to your launch date
+const dayNumber = dt => Math.floor((dt - LAUNCH) / 86400000);
+
+async function run(){
+  const res = await fetch("quotes.json");
+  const data = await res.json();
+  const quotes = data.quotes;
+
+  // Order the corpus by arc position, then by id for stability
+  const arcPos = a => { const i = ARC.indexOf(a); return i < 0 ? ARC.length : i; };
+  const ordered = [...quotes].sort((x,y) =>
+    arcPos(x.author) - arcPos(y.author) || x.id.localeCompare(y.id));
+
+  const today = new Date();
+  const n = ((dayNumber(today) % ordered.length) + ordered.length) % ordered.length;
+  let pick = ordered[n];
+  let feastName = null;
+
+  // Liturgical overlay: feast override wins, Lent biases apophatic/ascent
+  const feast = FEASTS.find(f => f.m === today.getMonth()+1 && f.d === today.getDate());
+  const pool = feast
+    ? quotes.filter(q => q.tags.some(t => feast.tags.includes(t)))
+    : (inLent(today) && dayNumber(today) % 3 === 0   // every third Lenten day
+        ? quotes.filter(q => q.tags.some(t => ["apophasis","ascent"].includes(t)))
+        : null);
+  if (pool && pool.length){
+    pick = pool[hash(today.getFullYear() + (feast ? feast.name : "lent") + today.getDate()) % pool.length];
+    feastName = feast ? feast.name : "Lent — the way of unknowing";
+  }
+
+  render(pick, ordered, feastName, data._meta);
+}
+
+function render(q, ordered, feastName, meta){
+  const fmt = new Intl.DateTimeFormat("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+  document.getElementById("dateline").textContent = fmt.format(new Date());
+  if (feastName){
+    const fb = document.getElementById("feast");
+    fb.textContent = "✦ " + feastName + " ✦";
+    fb.classList.add("show");
+  }
+
+  document.getElementById("qtext").textContent = q.text;
+  document.getElementById("attrib").innerHTML =
+    "— " + q.author + '<span class="work">' + q.work + ", " + q.citation + "</span>";
+
+  const needsVerify = /VERIFY|NEEDED/i.test(q.translation);
+  document.getElementById("trans").innerHTML = needsVerify
+    ? '<span class="verify-mark" title="Wording not yet verified against the public-domain source.">' + q.translation + "</span>"
+    : q.translation;
+
+  document.getElementById("note").textContent = q.note;
+  document.getElementById("echo").innerHTML = "<b>Platonic echo</b> — " + q.platonic_echo;
+  document.getElementById("tags").innerHTML =
+    q.tags.map(t => '<span class="tag">' + t + "</span>").join("");
+  document.getElementById("notebox").hidden = false;
+
+  // The ladder: light the rung of today's author
+  document.getElementById("rungs").innerHTML = ARC.map(a => {
+    const here = a === q.author ? " here" : "";
+    const last = a.split(" ").slice(-1)[0] === "Areopagite" ? "Dionysius" : a.split(" ")[0];
+    return '<div class="rung' + here + '"><span>' + last + "</span></div>";
+  }).join("");
+
+  const unverified = /verify/i.test(JSON.stringify(meta)) ? " · seed content — verification in progress" : "";
+  document.getElementById("foot").innerHTML =
+    'Quote ' + q.id + unverified + ' · <a href="https://github.com/">source</a>';
+}
+
+run().catch(err => {
+  document.getElementById("qtext").textContent =
+    "Could not load quotes.json — if previewing locally, serve the folder (python3 -m http.server) rather than opening the file directly.";
+  console.error(err);
+});
+</script>
+</body>
+</html>
