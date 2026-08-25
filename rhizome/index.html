@@ -38,7 +38,12 @@
 
   .frame{position:fixed;pointer-events:none;z-index:5}
   .masthead{top:20px;left:24px;max-width:min(42vw,480px)}
-  .eyebrow{font-family:system-ui,sans-serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);opacity:.85;margin:0 0 5px}
+  .eyebrow{font-family:system-ui,sans-serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);opacity:.85;margin:0 0 5px;
+    display:flex;align-items:center;gap:12px}
+  .homelink{pointer-events:auto;font-size:10.5px;letter-spacing:.14em;color:var(--ink-dim);text-decoration:none;
+    background:rgba(23,18,38,.8);border:1px solid #322a44;border-radius:7px;padding:4px 10px;
+    backdrop-filter:blur(6px);transition:.18s;white-space:nowrap}
+  .homelink:hover{border-color:var(--gold);color:var(--gold-soft)}
   .title{font-size:clamp(23px,3vw,38px);margin:0;line-height:1.02;font-weight:600}
   .subtitle{font-size:13.5px;color:var(--ink-dim);margin:7px 0 0;font-style:italic;max-width:40ch}
 
@@ -82,10 +87,8 @@
   .p-body::-webkit-scrollbar{width:8px} .p-body::-webkit-scrollbar-thumb{background:#2f2742;border-radius:4px}
 
   /* timeline (the River) — time runs left to right */
-  #timelineWrap{position:fixed;top:108px;left:0;right:0;bottom:0;overflow:auto;z-index:2;
+  #timelineWrap{position:fixed;top:124px;left:0;right:0;bottom:0;overflow:auto;z-index:2;
     cursor:grab;overscroll-behavior:contain}
-  /* in river mode the left gutter holds the stream names, so the legend steps aside */
-  body.river .legend{left:auto;right:24px}
   #timelineWrap.dragging{cursor:grabbing}
   #timelineWrap::-webkit-scrollbar{width:10px;height:10px}
   #timelineWrap::-webkit-scrollbar-thumb{background:#2f2742;border-radius:5px}
@@ -106,7 +109,8 @@
   .tl-seam{stroke:var(--gold);stroke-width:1;stroke-dasharray:2 6;opacity:.45}
   .tl-seamlabel{fill:var(--gold-soft);font-family:system-ui,sans-serif;font-size:11px;font-style:italic;opacity:.85}
   .tl-lanelabel{font-family:system-ui,sans-serif;font-size:10px;letter-spacing:.12em;
-    text-transform:uppercase;opacity:.85;text-anchor:start;dominant-baseline:middle}
+    text-transform:uppercase;opacity:.85;text-anchor:start;dominant-baseline:middle;
+    paint-order:stroke;stroke:#0b0812;stroke-width:3px}
   .tl-gutterbg{fill:url(#tlGutterFade)} .tl-axisbg{fill:url(#tlAxisFade)}
   .tl-res{fill:none;stroke:var(--gold);stroke-width:1;stroke-dasharray:1.5 6;stroke-linecap:round;opacity:.4}
 
@@ -136,7 +140,7 @@
 </div>
 
 <div class="frame masthead">
-  <p class="eyebrow">Simultaneity of Eternity</p>
+  <p class="eyebrow"><a class="homelink" href="../">&larr; Home</a><span>Simultaneity of Eternity</span></p>
   <h1 class="title">The Rhizome &amp; the River</h1>
   <p class="subtitle">The Platonic-Christian ascent — as a web with no root, and as a river through time.</p>
 </div>
@@ -417,9 +421,9 @@ document.getElementById("resetBtn").onclick=()=>{
 /* ================= TIMELINE (the River) — time flows left → right ================= */
 const tlSvg=document.getElementById("timelineSvg");
 const tlWrap=document.getElementById("timelineWrap");
-/* padR leaves the legend a clear corner once the river is scrolled to its end */
-const TL={y0:-620,y1:1990,ppy:2.7,padL:206,padR:360,axisH:84,rowH:29,bandPad:11,laneGap:14};
-let tlGutter=null,tlAxis=null,tlMoved=false;
+const TL={y0:-620,y1:1990,ppy:2.7,padL:206,padR:200,axisH:84,rowH:29,bandPad:11,laneGap:14};
+let tlGutter=null,tlAxis=null,tlMoved=false,tlLanes=[];
+const tlLegend=document.querySelector(".legend");
 function xToPix(year){return TL.padL+(year-TL.y0)*TL.ppy;}
 function mk(tag,attrs,cls){const e=document.createElementNS(SVGNS,tag);
   if(cls)e.setAttribute("class",cls);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
@@ -489,11 +493,13 @@ function buildTimeline(){
   /* stream names — pinned to the left edge while you pan */
   tlGutter=mk("g",{},"tl-gutter");
   tlGutter.appendChild(mk("rect",{x:0,y:TL.axisH-8,width:TL.padL-16,height:totalH-TL.axisH+8},"tl-gutterbg"));
-  LANE_ORDER.forEach(p=>{const cy=laneTop[p]+laneH[p]/2;
-    tlGutter.appendChild(mk("rect",{x:14,y:laneTop[p]+5,width:3,height:laneH[p]-10,rx:1.5,
+  tlLanes=LANE_ORDER.map(p=>{const cy=laneTop[p]+laneH[p]/2;
+    const g=mk("g",{transform:"translate(0 0)"},"tl-lane");
+    g.appendChild(mk("rect",{x:14,y:laneTop[p]+5,width:3,height:laneH[p]-10,rx:1.5,
       fill:PLATEAUS[p].color,opacity:.8}));
     const t=mk("text",{x:26,y:cy,fill:PLATEAUS[p].color},"tl-lanelabel");
-    t.textContent=PLATEAUS[p].label;tlGutter.appendChild(t);});
+    t.textContent=PLATEAUS[p].label;g.appendChild(t);tlGutter.appendChild(g);
+    return {g:g,cy:cy};});
   tlSvg.appendChild(tlGutter);
 
   /* the year axis — pinned to the top while you pan */
@@ -512,6 +518,17 @@ function buildTimeline(){
 function syncSticky(){
   if(tlGutter)tlGutter.setAttribute("transform","translate("+tlWrap.scrollLeft+" 0)");
   if(tlAxis)tlAxis.setAttribute("transform","translate(0 "+tlWrap.scrollTop+")");
+  dodgeLanes();
+}
+/* the legend sits bottom-left, over the gutter; any stream name it would bury
+   slides out to its right rather than disappearing */
+function dodgeLanes(){
+  if(!tlLanes.length)return;
+  const lg=tlLegend.getBoundingClientRect(),wr=tlWrap.getBoundingClientRect();
+  const clear=(lg.right-wr.left+14-26).toFixed(1);
+  tlLanes.forEach(({g,cy})=>{const vy=wr.top+cy-tlWrap.scrollTop;
+    const buried=vy>lg.top-12&&vy<lg.bottom+12;
+    g.setAttribute("transform",buried?"translate("+clear+" 0)":"translate(0 0)");});
 }
 tlWrap.addEventListener("scroll",syncSticky);
 
@@ -538,7 +555,6 @@ const btnR=document.getElementById("viewRhizome"),btnT=document.getElementById("
 function setMode(m){mode=m;
   btnR.classList.toggle("active",m==="rhizome");btnT.classList.toggle("active",m==="timeline");
   panel.classList.remove("open");lockHi=false;
-  document.body.classList.toggle("river",m==="timeline");
   if(m==="rhizome"){timelineWrap.classList.add("hidden");rSvg.classList.remove("hidden");alpha=Math.max(alpha,.4);clearHi();}
   else{rSvg.classList.add("hidden");timelineWrap.classList.remove("hidden");if(pathActive)pathBtn.onclick();buildTimeline();applyFilter();}
 }
