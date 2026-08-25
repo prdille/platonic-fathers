@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Rhizome of the Ascent</title>
+<style>
+  :root{
+    --night:#0e0b14;
+    --night2:#141020;
+    --ink:#e9e2d2;
+    --ink-dim:#a89f8c;
+    --gold:#d8b45a;
+    --gold-soft:#e6cf88;
+    --line:#3a3348;
+    --panel:#171226;
+    --greek:#4f83c2;
+    --patristic:#cc9a3a;
+    --medieval:#4fa587;
+    --renaissance:#d1573f;
+    --cosmos:#56b4d3;
+    --apophatic:#c0466a;
+    --modern:#8b6bbf;
+    --american:#7d92a8;
+    --contested:#9a938a;
+    --meta:#c9ced4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--night);
+    color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;}
+  #stage{position:fixed;inset:0;
+    background:
+      radial-gradient(1200px 900px at 62% 40%, #1c1630 0%, #120e1c 45%, #0b0812 100%);}
+  svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+  svg.dragging{cursor:grabbing}
+
+  /* edges */
+  .edge{fill:none;stroke:var(--line);stroke-width:1.1;opacity:.5;transition:opacity .25s,stroke .25s}
+  .edge.tension{stroke:#7a6f63;stroke-dasharray:5 5;opacity:.55}
+  .edge.resonance{stroke:var(--gold);stroke-width:1.2;stroke-dasharray:1.5 7;stroke-linecap:round;opacity:.75;
+    animation:flow 6s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-85}}
+  .edge.dim{opacity:.06}
+  .edge.hot{opacity:.95;stroke-width:2}
+
+  /* nodes */
+  .node{cursor:pointer}
+  .node circle{stroke:#0c0912;stroke-width:1.4;transition:filter .25s,opacity .25s}
+  .node text{fill:var(--ink);font-size:12px;letter-spacing:.04em;
+    font-variant:small-caps;text-anchor:middle;paint-order:stroke;
+    stroke:#0c0912;stroke-width:3px;pointer-events:none;transition:opacity .2s,fill .2s;opacity:.86}
+  .node.dim{opacity:.22}
+  .node.dim text{opacity:.12}
+  .node.hot text{fill:var(--gold-soft);opacity:1;font-size:13px}
+  .node.hot circle{filter:drop-shadow(0 0 10px currentColor)}
+  .node.path-lit circle{filter:drop-shadow(0 0 12px var(--gold))}
+  .halo{fill:none;opacity:0;transition:opacity .25s}
+  .node.hot .halo{opacity:.5}
+
+  .order-badge{fill:var(--gold);stroke:#0c0912;stroke-width:2px;paint-order:stroke;
+    font-size:12px;font-family:system-ui,sans-serif;font-weight:700;text-anchor:middle;
+    font-variant:normal;letter-spacing:0}
+
+  /* chrome */
+  .frame{position:fixed;pointer-events:none;z-index:5}
+  .masthead{top:22px;left:26px;max-width:min(46vw,520px)}
+  .eyebrow{font-family:system-ui,sans-serif;font-size:11px;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--gold);opacity:.85;margin:0 0 6px}
+  .title{font-size:clamp(26px,3.4vw,42px);margin:0;line-height:1.02;font-weight:600}
+  .subtitle{font-size:14px;color:var(--ink-dim);margin:8px 0 0;font-style:italic;max-width:38ch}
+
+  .legend{left:26px;bottom:22px;pointer-events:auto;
+    background:linear-gradient(180deg,rgba(23,18,38,.86),rgba(14,11,20,.9));
+    border:1px solid #2a2338;border-radius:12px;padding:14px 16px;backdrop-filter:blur(7px);
+    max-width:270px}
+  .legend h4{margin:0 0 9px;font-family:system-ui,sans-serif;font-size:10px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--ink-dim);font-weight:600}
+  .swatches{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px}
+  .sw{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer;
+    color:var(--ink);opacity:.9;transition:opacity .2s;user-select:none}
+  .sw:hover{opacity:1}
+  .sw.off{opacity:.32}
+  .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 6px currentColor}
+  .edgekey{margin-top:12px;padding-top:11px;border-top:1px solid #2a2338;
+    display:flex;flex-direction:column;gap:6px}
+  .ek{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--ink-dim)}
+  .ek svg{position:static;width:34px;height:8px}
+
+  .controls{top:24px;right:26px;display:flex;flex-direction:column;gap:9px;
+    align-items:flex-end;pointer-events:auto}
+  .btn{pointer-events:auto;font-family:system-ui,sans-serif;font-size:12.5px;letter-spacing:.02em;
+    color:var(--ink);background:rgba(23,18,38,.8);border:1px solid #322a44;border-radius:9px;
+    padding:9px 14px;cursor:pointer;transition:.18s;backdrop-filter:blur(6px)}
+  .btn:hover{border-color:var(--gold);color:var(--gold-soft)}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .btn.active{background:var(--gold);color:#1a1206;border-color:var(--gold);font-weight:600}
+
+  /* details panel */
+  #panel{position:fixed;top:0;right:0;height:100%;width:min(420px,90vw);z-index:20;
+    background:linear-gradient(180deg,#1a1428,#100c1a);border-left:1px solid #2c2440;
+    transform:translateX(102%);transition:transform .4s cubic-bezier(.4,.02,.2,1);
+    box-shadow:-24px 0 60px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+  #panel.open{transform:none}
+  .p-head{padding:30px 30px 18px;border-bottom:1px solid #2a2338;position:relative}
+  .p-close{position:absolute;top:22px;right:24px;background:none;border:none;color:var(--ink-dim);
+    font-size:26px;cursor:pointer;line-height:1;padding:0;transition:.2s}
+  .p-close:hover{color:var(--gold)}
+  .p-chip{display:inline-flex;align-items:center;gap:7px;font-family:system-ui,sans-serif;
+    font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:12px}
+  .p-chip .dot{width:9px;height:9px}
+  .p-name{font-size:30px;margin:0;line-height:1.05;font-weight:600}
+  .p-dates{font-size:14px;color:var(--gold);font-style:italic;margin-top:5px}
+  .p-body{padding:24px 30px 40px;overflow-y:auto;flex:1}
+  .p-role{font-size:16px;line-height:1.5;color:var(--ink);margin:0 0 22px}
+  .p-field{margin-bottom:20px}
+  .p-label{font-family:system-ui,sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--gold);opacity:.8;margin:0 0 5px}
+  .p-text{font-size:14.5px;line-height:1.62;color:var(--ink-dim);margin:0}
+  .p-text.strong{color:var(--ink)}
+  .p-body::-webkit-scrollbar{width:8px}
+  .p-body::-webkit-scrollbar-thumb{background:#2f2742;border-radius:4px}
+
+  /* intro overlay */
+  #intro{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(900px 700px at 50% 45%,rgba(20,16,32,.7),rgba(8,6,12,.94));
+    backdrop-filter:blur(3px);transition:opacity .5s}
+  #intro.gone{opacity:0;pointer-events:none}
+  .card{max-width:600px;margin:20px;padding:40px 44px;
+    background:linear-gradient(180deg,#191324,#110d1c);border:1px solid #2e2642;border-radius:16px;
+    box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .card .eyebrow{margin-bottom:12px}
+  .card h1{font-size:34px;margin:0 0 4px;font-weight:600}
+  .card .lede{font-size:15px;color:var(--gold);font-style:italic;margin:0 0 20px}
+  .card p{font-size:14.5px;line-height:1.66;color:var(--ink-dim);margin:0 0 14px}
+  .card b{color:var(--ink);font-weight:600}
+  .howto{display:flex;gap:20px;margin:22px 0 26px;flex-wrap:wrap}
+  .howto div{font-family:system-ui,sans-serif;font-size:12px;color:var(--ink-dim)}
+  .howto b{display:block;color:var(--gold-soft);font-size:12px;margin-bottom:2px;font-weight:600}
+  .enter{font-family:system-ui,sans-serif;font-size:14px;letter-spacing:.03em;color:#1a1206;
+    background:var(--gold);border:none;border-radius:10px;padding:13px 26px;cursor:pointer;
+    font-weight:600;transition:.2s}
+  .enter:hover{background:var(--gold-soft);transform:translateY(-1px)}
+
+  @media (max-width:720px){
+    .masthead{max-width:70vw}
+    .legend{max-width:210px;bottom:14px;left:14px;padding:11px 12px}
+    .swatches{grid-template-columns:1fr}
+    .controls{right:14px;top:16px}
+    .subtitle{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .edge.resonance{animation:none}
+    #panel{transition:none}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid meet" aria-label="Interactive map of thinkers">
+    <g id="edges"></g>
+    <g id="pathline"></g>
+    <g id="nodes"></g>
+  </svg>
+</div>
+
+<div class="frame masthead">
+  <p class="eyebrow">Simultaneity of Eternity</p>
+  <h1 class="title">A Rhizome of the Ascent</h1>
+  <p class="subtitle">Thinkers for a <i>lex formalis</i> — Plato as cornerstone, and the streams that carry him toward God.</p>
+</div>
+
+<div class="frame controls">
+  <button class="btn" id="pathBtn">Trace the reading path</button>
+  <button class="btn" id="resetBtn">Reset view</button>
+</div>
+
+<div class="frame legend">
+  <h4>The Plateaus</h4>
+  <div class="swatches" id="swatches"></div>
+  <div class="edgekey">
+    <div class="ek"><svg viewBox="0 0 34 8"><line x1="1" y1="4" x2="33" y2="4" stroke="#6f6656" stroke-width="1.4"/></svg> transmission — who taught whom</div>
+    <div class="ek"><svg viewBox="0 0 34 8"><line x1="1" y1="4" x2="33" y2="4" stroke="#8a7f70" stroke-width="1.4" stroke-dasharray="5 4"/></svg> tension — productive opposition</div>
+    <div class="ek"><svg viewBox="0 0 34 8"><line x1="1" y1="4" x2="33" y2="4" stroke="#d8b45a" stroke-width="1.4" stroke-dasharray="1.5 6" stroke-linecap="round"/></svg> resonance — a shared idea across time</div>
+  </div>
+</div>
+
+<aside id="panel" aria-live="polite">
+  <div class="p-head">
+    <button class="p-close" id="pClose" aria-label="Close">&times;</button>
+    <span class="p-chip" id="pChip"></span>
+    <h2 class="p-name" id="pName"></h2>
+    <div class="p-dates" id="pDates"></div>
+  </div>
+  <div class="p-body">
+    <p class="p-role" id="pRole"></p>
+    <div class="p-field"><p class="p-label">Key works</p><p class="p-text" id="pWorks"></p></div>
+    <div class="p-field"><p class="p-label">Why, for your project</p><p class="p-text strong" id="pWhy"></p></div>
+    <div class="p-field"><p class="p-label">Read this first</p><p class="p-text" id="pStart"></p></div>
+  </div>
+</aside>
+
+<div id="intro">
+  <div class="card">
+    <p class="eyebrow">How to read a rhizome</p>
+    <h1>A Rhizome of the Ascent</h1>
+    <p class="lede">A map with no root and no trunk — enter it anywhere.</p>
+    <p>A <b>rhizome</b> (Deleuze &amp; Guattari) is a map that grows sideways: any point may connect to any other, with no single origin. Here it charts the Platonic–Christian tradition behind your <i>lex formalis</i> — from Plato and Plotinus through Dionysius, Bonaventure, and Cusa, out to the moderns who recovered them.</p>
+    <p>The irony is deliberate: Deleuze built the rhizome to <b>overturn</b> Platonism — so the anti-Platonist's own tool is here mapping the Platonic ascent. Use the form; keep the tension in view. He's on the map too.</p>
+    <div class="howto">
+      <div><b>Drag</b> a thinker to pull the web</div>
+      <div><b>Click</b> for who they are &amp; what to read</div>
+      <div><b>Hover</b> to light their connections</div>
+      <div><b>Scroll</b> to zoom, drag empty space to pan</div>
+    </div>
+    <button class="enter" id="enterBtn">Enter the map</button>
+  </div>
+</div>
+
+<script>
+const PLATEAUS = {
+  greek:{label:"The Greek Source",color:"#4f83c2"},
+  patristic:{label:"The Patristic Weave",color:"#cc9a3a"},
+  medieval:{label:"The Medieval Ascent",color:"#4fa587"},
+  renaissance:{label:"The Renaissance Bloom",color:"#d1573f"},
+  cosmos:{label:"The Creative Cosmos",color:"#56b4d3"},
+  apophatic:{label:"The Apophatic Fire",color:"#c0466a"},
+  modern:{label:"The Modern Recovery",color:"#8b6bbf"},
+  american:{label:"The American System",color:"#7d92a8"},
+  contested:{label:"Lines of Flight",color:"#9a938a"},
+  meta:{label:"The Mapmakers",color:"#c9ced4"}
+};
+
+const NODES = [
+  {id:"plato",name:"Plato",dates:"c.428–348 BC",p:"greek",w:5,role:"The cornerstone. The Forms are the truly real; the sensible world is their image.",works:"Timaeus, Parmenides, Republic, Phaedrus",why:"Everything here is a footnote to him. The Timaeus gives you the five solids and a crafted cosmos; the Parmenides the One-and-the-Many; the Republic the Good beyond being.",start:"Timaeus, then Parmenides."},
+  {id:"plotinus",name:"Plotinus",dates:"c.204–270",p:"greek",w:4,role:"The great pagan Neoplatonist. All reality flows from the One by emanation.",works:"The Enneads",why:"The missing hinge between Plato and Christianity — Augustine met Platonism through him. The One beyond being becomes the God beyond names.",start:"Enneads I and V, via a selected edition."},
+  {id:"proclus",name:"Proclus",dates:"412–485",p:"greek",w:3,role:"The last great pagan systematizer of Neoplatonism.",works:"Elements of Theology, Platonic Theology",why:"The actual quarry Pseudo-Dionysius mined. Read him and you can see the pagan skeleton beneath Christian hierarchy.",start:"Elements of Theology (Dodds edition)."},
+  {id:"aristotle",name:"Aristotle",dates:"384–322 BC",p:"greek",w:4,role:"The counterweight. Form is IN the thing, not in a separate heaven.",works:"Metaphysics, Nicomachean Ethics, Politics",why:"Not your enemy — your other half. The Church's natural law is built on him. Holding Plato and Aristotle together is the engine, not choosing between them.",start:"Metaphysics VII–IX; the Ethics."},
+  {id:"pythagoras",name:"Pythagoras",dates:"c.570–495 BC",p:"greek",w:2,role:"Number and harmony as the very substance of the cosmos.",works:"(no writings; the tradition)",why:"The deep root of the solids-and-harmony intuition. Kepler is his truest heir.",start:"Approach him through Plato and Kepler."},
+
+  {id:"augustine",name:"Augustine",dates:"354–430",p:"patristic",w:5,role:"The hinge of the West. Platonism becomes Christian; politics becomes theology.",works:"Confessions, City of God, On the Trinity",why:"Your indispensable second cornerstone. The divine Ideas for the metaphysics; the Two Cities for the politics.",start:"City of God XI–XIX; Confessions VII."},
+  {id:"dionysius",name:"Pseudo-Dionysius",dates:"c.500",p:"patristic",w:5,role:"The anonymous Syrian who wrote as Paul's Athenian convert. Beauty as theophany; the Good self-diffusing.",works:"Divine Names, Mystical Theology, Celestial Hierarchy",why:"The great channel carrying Neoplatonism into Christian tradition — through the front door, wearing an apostolic name. Hierarchy, ascent, luminous darkness.",start:"Divine Names, then Mystical Theology (Luibheid/Rorem)."},
+  {id:"origen",name:"Origen",dates:"c.185–253",p:"patristic",w:2,role:"The earliest bold Christian-Platonic system-builder.",works:"On First Principles",why:"Shows the Neoplatonic pull in Christianity's first speculative centuries — and where it got him condemned.",start:"On First Principles, selectively."},
+  {id:"maximus",name:"Maximus the Confessor",dates:"c.580–662",p:"patristic",w:3,role:"The Byzantine synthesizer who rescued Dionysius for orthodoxy.",works:"Ambigua, Mystagogy",why:"He glosses Dionysius and gives you the cosmic liturgy — all things gathered up in Christ.",start:"The Mystagogy (short)."},
+  {id:"boethius",name:"Boethius",dates:"c.477–524",p:"patristic",w:3,role:"The last Roman, the first Scholastic. Carried antiquity's harmony into the Middle Ages.",works:"Consolation of Philosophy, De Musica",why:"Number, proportion, and Lady Philosophy — the transmission line itself, and a bridge to Kepler's harmony.",start:"The Consolation of Philosophy."},
+
+  {id:"eriugena",name:"Eriugena",dates:"c.800–877",p:"medieval",w:3,role:"The boldest Latin Neoplatonist. Creation as theophany; all things return to the One.",works:"Periphyseon (On the Division of Nature)",why:"Translated Dionysius into Latin, then out-dared him. Direct ancestor of Cusa. Later partly condemned — handle with discernment.",start:"A selected-writings intro before the full Periphyseon."},
+  {id:"anselm",name:"Anselm",dates:"1033–1109",p:"medieval",w:3,role:"Faith seeking understanding. Reasons from the very idea of God — that than which nothing greater can be thought — to His reality.",works:"Proslogion, Monologion, Cur Deus Homo",why:"Augustinian-Platonic realism at its purest: thought reaching being. The ontological argument treats the divine Idea as more real than the world — pure grist for a lex formalis, and a forebear Bonaventure builds on.",start:"The Proslogion (short and astonishing)."},
+  {id:"hugh",name:"Hugh of St. Victor",dates:"c.1096–1141",p:"medieval",w:3,role:"Turned Dionysian ascent into a practical program of study and contemplation.",works:"Didascalicon, On the Sacraments",why:"The missing stem on your shelf. Bonaventure's ascent grows straight out of the Victorines.",start:"The Didascalicon (short, on the arts)."},
+  {id:"richard",name:"Richard of St. Victor",dates:"d.1173",p:"medieval",w:3,role:"Hugh's successor; the psychology of contemplative ascent.",works:"The Mystical Ark, The Twelve Patriarchs",why:"The graded ascent that shapes the Itinerarium directly. In the Paulist CWS volume.",start:"The Mystical Ark."},
+  {id:"bonaventure",name:"Bonaventure",dates:"1221–1274",p:"medieval",w:5,role:"Your anchor. The Seraphic Doctor. Exemplarism: creatures as vestiges and images of divine Ideas.",works:"Itinerarium, Lignum Vitae, De reductione, Breviloquium",why:"Plato's Forms made orthodox by a canonized saint. Rigor AND fire, held together. The whole lex formalis can hang on him — and no one can call him a heretic.",start:"The Soul's Journey into God (Itinerarium)."},
+  {id:"aquinas",name:"Aquinas",dates:"1225–1274",p:"medieval",w:4,role:"The Aristotelian summit — in the same Paris room as Bonaventure.",works:"Summa Theologiae, Summa contra Gentiles",why:"The counterweight you must answer, not dodge. Natural law proper. He cites Dionysius ~1700 times; the streams aren't as separate as the polemics claim.",start:"ST I-II, qq.90–97 — the law treatise."},
+  {id:"eckhart",name:"Meister Eckhart",dates:"c.1260–1328",p:"medieval",w:3,role:"Rhineland apophatic fire; the ground of the soul where God is born.",works:"German Sermons, Latin Works",why:"Downstream of Dionysius and Eriugena, upstream of the Carmelites. The most daring preacher of the negative way.",start:"Selected Sermons (CWS)."},
+  {id:"dante",name:"Dante",dates:"1265–1321",p:"medieval",w:3,role:"Aristotelian-Thomist in framework, Platonic in spirit — the ascent through beauty toward God, in poetry.",works:"The Divine Comedy, Convivio",why:"The living proof that the two streams weren't at war: a Thomist cosmos climbed by Platonic eros, Beatrice drawing him upward. Your 'hold both' as an epic poem — and the reason a rigorous scholastic age still sang.",start:"Paradiso (with Augustine's ascent in mind)."},
+
+  {id:"cusa",name:"Nicholas of Cusa",dates:"1401–1464",p:"renaissance",w:5,role:"The bridge. Coincidence of opposites; learned ignorance; the mind as creative measurer.",works:"De docta ignorantia, De visione Dei, Idiota de mente",why:"Your hinge between the medieval mystics and the moderns. The infinite sphere, zero and infinity, the human as 'second god.' Balthasar's prize exhibit.",start:"On Learned Ignorance (Hopkins, free online)."},
+  {id:"ficino",name:"Marsilio Ficino",dates:"1433–1499",p:"renaissance",w:3,role:"Translated ALL of Plato and Plotinus into Latin; founded the Florentine Academy.",works:"Platonic Theology; the translations",why:"Without him the Renaissance has no Plato. The pipeline that refilled the West.",start:"Platonic Theology, selectively."},
+  {id:"plethon",name:"Gemistos Plethon",dates:"c.1355–1452",p:"renaissance",w:2,role:"Brought the complete Plato west to the Council of Florence, 1439.",works:"Nomoi (Book of Laws)",why:"The spark of the Florentine revival — the actual historical event that reopened Plato in the Latin world.",start:"Meet him through the Florence story."},
+  {id:"pico",name:"Pico della Mirandola",dates:"1463–1494",p:"renaissance",w:3,role:"Human dignity as the freedom to make oneself — the creature with no fixed place.",works:"Oration on the Dignity of Man",why:"The Renaissance charter of man-as-creator; kin to Cusa's second god and your sub-creator pillar.",start:"Oration on the Dignity of Man (short)."},
+  {id:"leonardo",name:"Leonardo da Vinci",dates:"1452–1519",p:"renaissance",w:4,role:"The synthesis made flesh. Art, mathematics, and nature investigated as a single act of seeing.",works:"Notebooks; the Vitruvian Man; the paintings",why:"Not an arguer for the vision but the living proof of it — geometry, proportion, and the human body as microcosm, all one thing. The negentropic, creative universe embodied in a single mind. LaRouche's key witness, and rightly so.",start:"The Notebooks (a good selected edition)."},
+  {id:"raphael",name:"Raphael",dates:"1483–1520",p:"renaissance",w:3,role:"Painted the synthesis you keep reaching for — Plato pointing up, Aristotle pointing out, both necessary.",works:"The School of Athens; the Disputation of the Sacrament",why:"Your 'hold both' rendered in fresco, on the Vatican walls. The School of Athens IS your thesis: the two motions of one mind, not a battle to be won. The single best image for the whole lex formalis.",start:"Look hard at the School of Athens — it's an argument."},
+
+  {id:"kepler",name:"Kepler",dates:"1571–1630",p:"cosmos",w:4,role:"The five solids as the architecture of the heavens; the cosmos as image of the Trinity.",works:"Mysterium Cosmographicum, Harmonices Mundi",why:"Your Timaeus made astronomy. Geometry as God's creative blueprint — the negentropic vision in mathematical form.",start:"Mysterium Cosmographicum."},
+  {id:"leibniz",name:"Leibniz",dates:"1646–1716",p:"cosmos",w:4,role:"Pre-established harmony; the universe as maximal creative order.",works:"Monadology, Discourse on Metaphysics",why:"The anti-entropic metaphysician who also touched the American colonial project. Your bridge from cosmos to political economy.",start:"Monadology; Discourse on Metaphysics."},
+  {id:"pascal",name:"Pascal",dates:"1623–1662",p:"cosmos",w:3,role:"The two infinities; the silence of infinite spaces; the wager.",works:"Pensées",why:"Inherits Cusa's infinite sphere — center everywhere, circumference nowhere. Your zero-and-infinity theme, made devotional.",start:"Pensées (Krailsheimer edition)."},
+
+  {id:"johncross",name:"John of the Cross",dates:"1542–1591",p:"apophatic",w:4,role:"The summit of the negative way. The dark night; ascent beyond image and concept.",works:"Ascent of Mount Carmel, Dark Night, Spiritual Canticle",why:"Where the Dionysian–Bonaventuran fire reaches its peak, and its greatest poetry. You've been chasing his link to Bonaventure — here it is.",start:"Ascent / Dark Night (ICS or CWS)."},
+  {id:"teresa",name:"Teresa of Ávila",dates:"1515–1582",p:"apophatic",w:3,role:"The interior castle; mystical ascent mapped from within.",works:"The Interior Castle, The Life",why:"John's Carmelite partner; the experiential architecture of union.",start:"The Interior Castle."},
+
+  {id:"delubac",name:"Henri de Lubac",dates:"1896–1991",p:"modern",w:3,role:"Ressourcement: go behind Neo-Scholasticism, back to the Fathers.",works:"Catholicism, Surnaturel",why:"Your warrant for the whole project — permission to recover the wider tradition.",start:"Catholicism."},
+  {id:"balthasar",name:"Balthasar",dates:"1905–1988",p:"modern",w:4,role:"Theological aesthetics: beauty as a way to God; form as revelation.",works:"The Glory of the Lord (7 vols)",why:"Reads Cusa as the height of the analogy of being (Vol. 5), Plato in Vol. 4. Develops your aesthetics of form — but lead with Bonaventure's halo when the trads object.",start:"Glory of the Lord Vol. 1, then Vol. 5."},
+  {id:"maritain",name:"Jacques Maritain",dates:"1882–1973",p:"modern",w:3,role:"Human making participates in divine creativity.",works:"Art and Scholasticism, Creative Intuition",why:"Turns Bonaventure's De reductione into a modern theory of art and work. Short and clear.",start:"Art and Scholasticism."},
+  {id:"pieper",name:"Josef Pieper",dates:"1904–1997",p:"modern",w:3,role:"A Thomist who writes like a Platonist; leisure as the ground of culture.",works:"Leisure the Basis of Culture, The Four Cardinal Virtues",why:"The most readable on the list, and the gentlest 'hold both.' Law and culture as discovered, not imposed.",start:"Leisure: The Basis of Culture — one evening."},
+  {id:"voegelin",name:"Eric Voegelin",dates:"1901–1985",p:"modern",w:3,role:"History as the struggle to order the soul toward transcendence.",works:"The New Science of Politics, Order and History",why:"The rigorous, non-conspiratorial version of the critique LaRouche gestured at. 'Don't immanentize the eschaton.'",start:"The New Science of Politics."},
+
+  {id:"hamilton",name:"Hamilton",dates:"1755–1804",p:"american",w:3,role:"Productive capacity over extraction; the developmental state.",works:"Report on the Subject of Manufactures",why:"The political economy of created value — your dodecahedron made civic.",start:"Report on Manufactures."},
+  {id:"carey",name:"Henry C. Carey",dates:"1793–1879",p:"american",w:3,role:"Lincoln's economist. The harmony of interests against Malthus and Ricardo.",works:"The Harmony of Interests, Principles of Social Science",why:"His title names your fifth pillar. Demolishes the scarcity/entropy model of economics.",start:"The Harmony of Interests."},
+  {id:"lincoln",name:"Lincoln",dates:"1809–1865",p:"american",w:3,role:"The American System enacted: rails, land-grant colleges, free labor.",works:"Speeches; the 1862 legislative cluster",why:"The System made real in a commonwealth of free labor.",start:"Selected speeches; the 1862 acts."},
+  {id:"list",name:"Friedrich List",dates:"1789–1846",p:"american",w:2,role:"Productive powers over exchange-value; the bridge to the German school.",works:"The National System of Political Economy",why:"Carries the American System back into the Leibnizian stream.",start:"The National System, selectively."},
+  {id:"franklin",name:"Franklin",dates:"1706–1790",p:"american",w:2,role:"The practical Enlightenment; 'a republic, if you can keep it.'",works:"Autobiography; writings",why:"The American face of the creative, improving temper — with Leibnizian roots, per the Schiller reading.",start:"The Autobiography."},
+  {id:"clay",name:"Henry Clay",dates:"1777–1852",p:"american",w:3,role:"The man who named it. 'The American System': protective tariff, a national bank, and internal improvements bound into one program.",works:"Speech 'In Defense of the American System' (1832); the Whig program",why:"The keystone of your fifth pillar — he gave the system its name on the floor of Congress. Hamilton's vision becomes a coherent political program through Clay, and passes to Lincoln, who called him his 'beau ideal of a statesman.'",start:"The 1832 'In Defense of the American System' speech."},
+
+  {id:"kant",name:"Kant",dates:"1724–1804",p:"contested",w:3,role:"Space and time as the forms of intuition; the thing-in-itself sealed off.",works:"Critique of Pure Reason",why:"Mine the insight — form reaches us only through space-time, your Cube/Flesh. Refuse the system — that the exemplars are therefore unknowable.",start:"Prolegomena, before the first Critique."},
+  {id:"larouche",name:"LaRouche / Schiller",dates:"20th–21st c.",p:"contested",w:2,role:"The on-ramp. Cusa, Leibniz, Plato against an entropic 'oligarchy.'",works:"EIR, Fidelio, Leonore",why:"The door that walked you here — real ore (the Florentine revival, negentropy) wrapped in a conspiracy frame. Love the door; don't move into the room.",start:"Read for questions; verify every causal claim."},
+  {id:"dugin",name:"Alexander Dugin",dates:"b.1962",p:"contested",w:2,role:"Political Platonism — contested and consequential.",works:"Political Platonism, The Fourth Political Theory",why:"Mine the Platonic readings; keep the political project firmly at arm's length.",start:"Political Platonism, read critically."},
+  {id:"poe",name:"Edgar Allan Poe",dates:"1809–1849",p:"contested",w:2,role:"The critic of mechanical reason — what's hidden in plain sight escapes the merely calculating mind.",works:"The Purloined Letter; Eureka",why:"A line of flight pulling toward your side: Dupin sees the form the brute-force logician cannot. A parable for why the entropic, positivist mind literally cannot perceive created order. Your book-club pick, now placed.",start:"The Purloined Letter; then the cosmology of Eureka."},
+
+  {id:"deleuze",name:"Deleuze & Guattari",dates:"20th c.",p:"meta",w:3,role:"The mapmakers — who set out to OVERTURN Platonism.",works:"A Thousand Plateaus, Difference and Repetition",why:"The irony you asked for: the rhizome is the anti-Platonist's tool, here charting the Platonic ascent. Deleuze named his own project 'the overturning of Platonism.' Use the form; know the tension.",start:"A Thousand Plateaus — 'Introduction: Rhizome.'"}
+];
+
+const T="transmission", X="tension", R="resonance";
+const LINKS = [
+  ["pythagoras","plato",T],["plato","plotinus",T],["plotinus","proclus",T],["proclus","dionysius",T],
+  ["plotinus","augustine",T],["plato","augustine",T],["origen","augustine",T],
+  ["dionysius","maximus",T],["maximus","eriugena",T],["dionysius","eriugena",T],["eriugena","cusa",T],
+  ["dionysius","hugh",T],["hugh","richard",T],["hugh","bonaventure",T],["richard","bonaventure",T],
+  ["augustine","bonaventure",T],["dionysius","bonaventure",T],
+  ["augustine","anselm",T],["anselm","bonaventure",T],["anselm","cusa",R],
+  ["aristotle","aquinas",T],["dionysius","aquinas",T],["boethius","aquinas",T],
+  ["eriugena","eckhart",T],["dionysius","eckhart",T],["eckhart","johncross",T],
+  ["plethon","ficino",T],["plethon","cusa",T],["plato","ficino",T],["plotinus","ficino",T],["ficino","pico",T],
+  ["cusa","leonardo",T],["leonardo","kepler",R],["leonardo","pico",R],
+  ["raphael","plato",R],["raphael","aristotle",R],["ficino","raphael",T],
+  ["aquinas","dante",T],["dante","plato",R],["augustine","dante",T],
+  ["poe","leibniz",X],["poe","kant",X],
+  ["cusa","leibniz",T],["kepler","leibniz",T],
+  ["dionysius","johncross",T],["bonaventure","johncross",T],["johncross","teresa",T],
+  ["delubac","balthasar",T],["balthasar","cusa",T],["balthasar","bonaventure",T],
+  ["maritain","bonaventure",T],["pieper","aquinas",T],["voegelin","plato",T],
+  ["leibniz","hamilton",T],["hamilton","carey",T],["carey","lincoln",T],["carey","list",T],["leibniz","franklin",T],
+  ["hamilton","clay",T],["clay","lincoln",T],["clay","carey",T],["clay","list",T],
+
+  ["plato","aristotle",X],["bonaventure","aquinas",X],["kant","plato",X],["kant","cusa",X],
+  ["larouche","aristotle",X],["dugin","plato",X],["deleuze","plato",X],
+  ["larouche","cusa",X],["larouche","leibniz",X],["larouche","plato",X],
+
+  ["plato","kepler",R],["pythagoras","kepler",R],["cusa","pascal",R],["boethius","kepler",R],
+  ["plotinus","eckhart",R],["augustine","voegelin",R],["leibniz","carey",R],
+  ["cusa","pico",R],["maritain","pico",R],["pascal","leibniz",R],["pieper","plato",R]
+];
+
+// ---- build lookup ----
+const byId = Object.fromEntries(NODES.map(n=>[n.id,n]));
+const neighbors = {}; NODES.forEach(n=>neighbors[n.id]=new Set());
+LINKS.forEach(([a,b])=>{neighbors[a].add(b);neighbors[b].add(a);});
+
+// ---- initial positions: cluster by plateau around a ring ----
+const W=1600,H=1000,CX=W/2,CY=H/2;
+const plateauOrder=Object.keys(PLATEAUS);
+const angleOf={};
+plateauOrder.forEach((p,i)=>angleOf[p]=(i/plateauOrder.length)*Math.PI*2 - Math.PI/2);
+NODES.forEach(n=>{
+  const a=angleOf[n.p]+(Math.random()-.5)*0.7;
+  const r=300+Math.random()*160;
+  n.x=CX+Math.cos(a)*r; n.y=CY+Math.sin(a)*r*0.66; n.vx=0; n.vy=0; n.fixed=false;
+});
+
+// ---- svg refs ----
+const svg=document.getElementById("svg");
+const gEdges=document.getElementById("edges");
+const gNodes=document.getElementById("nodes");
+const gPath=document.getElementById("pathline");
+const SVGNS="http://www.w3.org/2000/svg";
+
+// edges
+const edgeEls=LINKS.map(([a,b,t])=>{
+  const p=document.createElementNS(SVGNS,"path");
+  p.setAttribute("class","edge "+t);
+  p.dataset.a=a; p.dataset.b=b;
+  gEdges.appendChild(p); return {a,b,t,el:p};
+});
+
+// nodes
+NODES.forEach(n=>{
+  const g=document.createElementNS(SVGNS,"g");
+  g.setAttribute("class","node"); g.dataset.id=n.id;
+  const col=PLATEAUS[n.p].color;
+  const rad=6+n.w*2.4;
+  const halo=document.createElementNS(SVGNS,"circle");
+  halo.setAttribute("class","halo"); halo.setAttribute("r",rad+9);
+  halo.setAttribute("stroke",col); halo.setAttribute("stroke-width","1.5");
+  const c=document.createElementNS(SVGNS,"circle");
+  c.setAttribute("r",rad); c.setAttribute("fill",col);
+  c.style.color=col;
+  const t=document.createElementNS(SVGNS,"text");
+  t.setAttribute("y",rad+15); t.textContent=n.name;
+  g.appendChild(halo); g.appendChild(c); g.appendChild(t);
+  gNodes.appendChild(g);
+  n.el=g; n.rad=rad;
+});
+
+// ---- physics ----
+let alpha=1;
+const REPULSE=150000, CENTER=0.0016, DAMP=0.86, MAXV=32;
+function linkDist(l){ return 78 + (byId[l.a].w+byId[l.b].w)*7 + (l.t===R?60:0); }
+
+function step(){
+  for(let i=0;i<NODES.length;i++){
+    const a=NODES[i];
+    for(let j=i+1;j<NODES.length;j++){
+      const b=NODES[j];
+      let dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy+0.01, d=Math.sqrt(d2);
+      const f=REPULSE/d2, fx=f*dx/d, fy=f*dy/d;
+      a.vx-=fx;a.vy-=fy;b.vx+=fx;b.vy+=fy;
+    }
+  }
+  edgeEls.forEach(l=>{
+    const a=byId[l.a], b=byId[l.b];
+    let dx=b.x-a.x, dy=b.y-a.y, d=Math.sqrt(dx*dx+dy*dy)+.01;
+    const strength=(l.t===X?0.012:l.t===R?0.006:0.02);
+    const diff=(d-linkDist(l))/d*strength;
+    const fx=dx*diff, fy=dy*diff;
+    a.vx+=fx;a.vy+=fy;b.vx-=fx;b.vy-=fy;
+  });
+  NODES.forEach(n=>{
+    n.vx+=(CX-n.x)*CENTER; n.vy+=(CY-n.y)*CENTER;
+    if(n.fixed) return;
+    n.vx=Math.max(-MAXV,Math.min(MAXV,n.vx));
+    n.vy=Math.max(-MAXV,Math.min(MAXV,n.vy));
+    n.x+=n.vx*alpha; n.y+=n.vy*alpha;
+    n.vx*=DAMP; n.vy*=DAMP;
+  });
+  alpha=Math.max(alpha*0.99,0.02);
+}
+function render(){
+  edgeEls.forEach(l=>{
+    const a=byId[l.a], b=byId[l.b];
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+    const dx=b.x-a.x, dy=b.y-a.y;
+    const cx=mx-dy*0.09, cy=my+dx*0.09;
+    l.el.setAttribute("d",`M${a.x.toFixed(1)} ${a.y.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`);
+  });
+  NODES.forEach(n=>n.el.setAttribute("transform",`translate(${n.x.toFixed(1)} ${n.y.toFixed(1)})`));
+  if(pathActive) drawPath();
+}
+let running=true;
+function loop(){ if(running){ step(); render(); } requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+
+// ---- view (pan/zoom) ----
+let vb={x:0,y:0,w:W,h:H};
+function applyVB(){ svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`); }
+function screenToSVG(px,py){
+  const r=svg.getBoundingClientRect();
+  return { x:vb.x+(px-r.left)/r.width*vb.w, y:vb.y+(py-r.top)/r.height*vb.h };
+}
+svg.addEventListener("wheel",e=>{
+  e.preventDefault();
+  const m=screenToSVG(e.clientX,e.clientY);
+  const k=e.deltaY>0?1.1:0.9;
+  const nw=Math.min(3200,Math.max(520,vb.w*k)), nh=nw*(vb.h/vb.w);
+  vb.x=m.x-(m.x-vb.x)*(nw/vb.w); vb.y=m.y-(m.y-vb.y)*(nh/vb.h);
+  vb.w=nw; vb.h=nh; applyVB();
+},{passive:false});
+
+// ---- interaction: drag nodes / pan ----
+let drag=null, pan=null;
+svg.addEventListener("pointerdown",e=>{
+  const g=e.target.closest(".node");
+  const pt=screenToSVG(e.clientX,e.clientY);
+  if(g){
+    const n=byId[g.dataset.id];
+    drag={n,dx:n.x-pt.x,dy:n.y-pt.y,moved:false};
+    n.fixed=true; alpha=Math.max(alpha,0.5);
+    svg.setPointerCapture(e.pointerId);
+  } else {
+    pan={sx:e.clientX,sy:e.clientY,ox:vb.x,oy:vb.y};
+    svg.classList.add("dragging");
+    svg.setPointerCapture(e.pointerId);
+  }
+});
+svg.addEventListener("pointermove",e=>{
+  if(drag){
+    const pt=screenToSVG(e.clientX,e.clientY);
+    drag.n.x=pt.x+drag.dx; drag.n.y=pt.y+drag.dy; drag.n.vx=0; drag.n.vy=0;
+    drag.moved=true; alpha=Math.max(alpha,0.35);
+  } else if(pan){
+    const r=svg.getBoundingClientRect();
+    vb.x=pan.ox-(e.clientX-pan.sx)/r.width*vb.w;
+    vb.y=pan.oy-(e.clientY-pan.sy)/r.height*vb.h; applyVB();
+  }
+});
+svg.addEventListener("pointerup",e=>{
+  if(drag){
+    drag.n.fixed=false;
+    if(!drag.moved) openPanel(drag.n);
+    drag=null;
+  }
+  pan=null; svg.classList.remove("dragging");
+});
+
+// ---- hover highlight ----
+gNodes.addEventListener("pointerover",e=>{
+  const g=e.target.closest(".node"); if(!g) return;
+  highlight(g.dataset.id);
+});
+gNodes.addEventListener("pointerout",e=>{ if(!lockHi) clearHi(); });
+let lockHi=false;
+function highlight(id){
+  const keep=neighbors[id]; keep.add(id);
+  NODES.forEach(n=>{
+    n.el.classList.toggle("hot",n.id===id);
+    n.el.classList.toggle("dim",!keep.has(n.id));
+  });
+  edgeEls.forEach(l=>{
+    const on=(l.a===id||l.b===id);
+    l.el.classList.toggle("hot",on);
+    l.el.classList.toggle("dim",!on);
+  });
+}
+function clearHi(){
+  if(plateauFilter){ applyPlateauFilter(); return; }
+  NODES.forEach(n=>n.el.classList.remove("hot","dim"));
+  edgeEls.forEach(l=>l.el.classList.remove("hot","dim"));
+}
+
+// ---- details panel ----
+const panel=document.getElementById("panel");
+function openPanel(n){
+  const pl=PLATEAUS[n.p];
+  document.getElementById("pChip").innerHTML=`<span class="dot" style="background:${pl.color};color:${pl.color}"></span>${pl.label}`;
+  document.getElementById("pName").textContent=n.name;
+  document.getElementById("pDates").textContent=n.dates;
+  document.getElementById("pRole").textContent=n.role;
+  document.getElementById("pWorks").textContent=n.works;
+  document.getElementById("pWhy").textContent=n.why;
+  document.getElementById("pStart").textContent=n.start;
+  panel.classList.add("open");
+  lockHi=true; highlight(n.id);
+}
+document.getElementById("pClose").onclick=()=>{ panel.classList.remove("open"); lockHi=false; clearHi(); };
+
+// ---- legend / plateau filter ----
+const sw=document.getElementById("swatches");
+let plateauFilter=null;
+Object.entries(PLATEAUS).forEach(([key,pl])=>{
+  const d=document.createElement("div"); d.className="sw"; d.dataset.p=key;
+  d.innerHTML=`<span class="dot" style="background:${pl.color};color:${pl.color}"></span>${pl.label}`;
+  d.onclick=()=>{
+    plateauFilter = plateauFilter===key ? null : key;
+    [...sw.children].forEach(c=>c.classList.toggle("off",plateauFilter&&c.dataset.p!==plateauFilter));
+    applyPlateauFilter();
+  };
+  sw.appendChild(d);
+});
+function applyPlateauFilter(){
+  if(!plateauFilter){ NODES.forEach(n=>n.el.classList.remove("dim","hot"));
+    edgeEls.forEach(l=>l.el.classList.remove("dim","hot")); return; }
+  NODES.forEach(n=>{ n.el.classList.toggle("dim",n.p!==plateauFilter); n.el.classList.remove("hot"); });
+  edgeEls.forEach(l=>{
+    const on=byId[l.a].p===plateauFilter||byId[l.b].p===plateauFilter;
+    l.el.classList.toggle("dim",!on); l.el.classList.remove("hot");
+  });
+}
+
+// ---- reading path ----
+const PATH=["plato","augustine","dionysius","hugh","richard","bonaventure","cusa","balthasar","johncross"];
+let pathActive=false;
+const pathBtn=document.getElementById("pathBtn");
+pathBtn.onclick=()=>{
+  pathActive=!pathActive;
+  pathBtn.classList.toggle("active",pathActive);
+  if(!pathActive){ gPath.innerHTML=""; NODES.forEach(n=>n.el.classList.remove("path-lit"));
+    document.querySelectorAll(".order-badge").forEach(b=>b.remove()); clearHi(); return; }
+  panel.classList.remove("open"); lockHi=false;
+  const keep=new Set(PATH);
+  NODES.forEach(n=>{ n.el.classList.toggle("path-lit",keep.has(n.id));
+    n.el.classList.toggle("dim",!keep.has(n.id)); });
+  edgeEls.forEach(l=>l.el.classList.add("dim"));
+  PATH.forEach((id,i)=>{
+    const badge=document.createElementNS(SVGNS,"text");
+    badge.setAttribute("class","order-badge"); badge.dataset.for=id;
+    badge.textContent=(i+1);
+    gNodes.appendChild(badge);
+  });
+  drawPath();
+};
+function drawPath(){
+  const pts=PATH.map(id=>byId[id]);
+  let d="M"+pts[0].x.toFixed(1)+" "+pts[0].y.toFixed(1);
+  for(let i=1;i<pts.length;i++){
+    const a=pts[i-1],b=pts[i], mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=b.x-a.x,dy=b.y-a.y;
+    d+=` Q${(mx-dy*0.08).toFixed(1)} ${(my+dx*0.08).toFixed(1)} ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+  }
+  let pl=gPath.querySelector("path");
+  if(!pl){ pl=document.createElementNS(SVGNS,"path"); gPath.appendChild(pl);
+    pl.setAttribute("fill","none"); pl.setAttribute("stroke","var(--gold)");
+    pl.setAttribute("stroke-width","2.4"); pl.setAttribute("stroke-linecap","round");
+    pl.setAttribute("opacity",".85"); pl.setAttribute("stroke-dasharray","2 9");
+    pl.style.filter="drop-shadow(0 0 6px var(--gold))"; }
+  pl.setAttribute("d",d);
+  document.querySelectorAll(".order-badge").forEach(bd=>{
+    const n=byId[bd.dataset.for];
+    bd.setAttribute("x",(n.x+n.rad+11).toFixed(1)); bd.setAttribute("y",(n.y-n.rad-5).toFixed(1));
+  });
+}
+
+// ---- reset ----
+document.getElementById("resetBtn").onclick=()=>{
+  vb={x:0,y:0,w:W,h:H}; applyVB(); alpha=0.6;
+  plateauFilter=null; [...sw.children].forEach(c=>c.classList.remove("off"));
+  if(pathActive) pathBtn.onclick();
+  panel.classList.remove("open"); lockHi=false; clearHi();
+};
+
+// ---- intro ----
+const intro=document.getElementById("intro");
+document.getElementById("enterBtn").onclick=()=>{ intro.classList.add("gone");
+  setTimeout(()=>intro.style.display="none",500); alpha=0.9; };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){
+  panel.classList.remove("open"); lockHi=false; clearHi(); }});
+
+applyVB();
+</script>
+</body>
+</html>
