@@ -119,6 +119,20 @@ const ARC = [
   "John of Damascus"
 ];
 
+const ERA = {
+  "Philo of Alexandria":"c. 20 BC – c. AD 50",
+  "Clement of Alexandria":"c. 150 – c. 215",
+  "Origen of Alexandria":"c. 185 – c. 253",
+  "Athanasius of Alexandria":"c. 296 – 373",
+  "Ephrem the Syrian":"c. 306 – 373",
+  "Gregory of Nyssa":"c. 335 – c. 395",
+  "Augustine of Hippo":"354 – 430",
+  "Proclus of Constantinople":"d. 446",
+  "Boethius":"c. 477 – 524",
+  "Pseudo-Dionysius the Areopagite":"fl. c. 500",
+  "John of Damascus":"c. 675 – 749"
+};
+
 // Fixed feasts (month is 1-based) -> preferred tag pool
 const FEASTS = [
   {m:1,  d:1,  name:"Mary, Mother of God",        tags:["marian"]},
@@ -191,7 +205,9 @@ function render(q, ordered, feastName, meta){
 
   document.getElementById("qtext").textContent = q.text;
   document.getElementById("attrib").innerHTML =
-    "— " + q.author + '<span class="work">' + q.work + ", " + q.citation + "</span>";
+    "— " + q.author +
+    " <small style='color:var(--ink-dim);font-size:.75em'>(" + (ERA[q.author] || "") + ")</small>" +
+    '<span class="work">' + q.work + ", " + q.citation + "</span>";
 
   const needsVerify = /VERIFY|NEEDED/i.test(q.translation);
   document.getElementById("trans").innerHTML = needsVerify
